@@ -1,0 +1,39 @@
+{
+  "name": "gomud-webclient",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "format": "prettier --write \"src/**/*.{ts,vue}\"",
+    "lint": "eslint src/**/*.{ts,vue}",
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@xterm/xterm": "^5.5.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@vueuse/core": "^11.3.0",
+    "radix-vue": "^1.9.9",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0",
+    "lucide-vue-next": "^0.473.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.0.6",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.8.0",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^4.0.6",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^6.1.0",
+    "vue-tsc": "^2.2.0"
+  }
+}

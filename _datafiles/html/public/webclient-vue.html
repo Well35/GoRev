@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ .CONFIG.Server.MudName }} - Web Client</title>
+  <meta name="gomud-cdn" content="{{ .CONFIG.FilePaths.WebCDNLocation }}" />
+  <meta name="gomud-mudname" content="{{ .CONFIG.Server.MudName }}" />
+  <link rel="stylesheet" href="/app/assets/webclient.style.css" />
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/app/assets/webclient.main.js"></script>
+</body>
+</html>

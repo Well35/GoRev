@@ -10,3 +10,6 @@ server.crt
 server.key
 tmp-gomud.exe
 __debug*
+webclient/node_modules/
+_datafiles/html/public/app/
+.claude/

@@ -49,6 +49,10 @@ build_linux64: generate ### Build a binary for linux
 .PHONY: build
 build: validate build_local  ### Validate the code and build the binary.
 
+.PHONY: build-frontend
+build-frontend: ### Build Vue webclient and output assets to public/app/
+	cd webclient && bun install && bun run build
+
 .PHONY: build_local
 build_local: generate
 	CGO_ENABLED=0 go build -trimpath -a -o $(BIN)

@@ -11,6 +11,7 @@ services:
     environment:
       SERVICE_NAME: go-mud-server
       PORT: 33333
+      CONFIG_PATH: /app/myconfig.yaml
     ports:
       - 33333:33333
       - 80:80
@@ -18,6 +19,7 @@ services:
       - type: volume
         source: log-volume
         target: /app/log
+      - ./myconfig.yaml:/app/myconfig.yaml
 
   busybox:
     container_name: "server-logs"
