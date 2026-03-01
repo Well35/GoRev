@@ -36,3 +36,8 @@ indent_style = tab
 [*.css]
 indent_style = space
 indent_size = 2
+
+# Vue + TypeScript (webclient)
+[*.{vue,ts}]
+indent_style = space
+indent_size = 4
