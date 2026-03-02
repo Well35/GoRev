@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, reactive } from 'vue';
+import { GMCPModule } from '@/lib/gmcp';
+import type { Direction } from '@/types';
 
 export interface RoomData {
     id: number;
@@ -10,7 +12,7 @@ export interface RoomData {
     x: number;
     y: number;
     z: number;
-    exits: Record<string, number>; // direction → roomId
+    exits: Partial<Record<Direction, number>>;
 }
 
 export interface RoomContentsCharacter {
@@ -99,9 +101,9 @@ export const useRoomStore = defineStore('room', () => {
         const coords = parseCoords(data.coords ?? '');
         if (!coords) return;
 
-        const exits: Record<string, number> = {};
+        const exits: Partial<Record<Direction, number>> = {};
         for (const [dir, exit] of Object.entries(data.exitsv2 ?? {})) {
-            exits[dir] = exit.num;
+            exits[dir as Direction] = exit.num;
         }
 
         // Merge into existing room entry (Room.Map may have already created it)
@@ -129,12 +131,12 @@ export const useRoomStore = defineStore('room', () => {
         contents.npcs = data.Contents?.Npcs ?? [];
     }
 
-    function handleGMCP(module: string, payload: unknown) {
-        if (module === 'Room.Info') {
+    function handleGMCP(module: GMCPModule, payload: unknown) {
+        if (module === GMCPModule.RoomInfo) {
             applyRoomInfo(payload as RoomInfoPayload);
-        } else if (module === 'Room.Map') {
+        } else if (module === GMCPModule.RoomMap) {
             applyRoomMap(payload as RoomMapRoom[]);
-        } else if (module === 'Room.Info.Contents.Npcs') {
+        } else if (module === GMCPModule.RoomInfoContentsNpcs) {
             contents.npcs = (payload as RoomContentsCharacter[]) ?? [];
         }
     }

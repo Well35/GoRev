@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
+import { GMCPModule } from '@/lib/gmcp';
 
 export interface CharSkill {
     id: string;
@@ -89,8 +90,8 @@ export const useCharStore = defineStore('char', () => {
         spells.splice(0, spells.length, ...data);
     }
 
-    function handleGMCP(module: string, payload: unknown) {
-        if (module === 'Char') {
+    function handleGMCP(module: GMCPModule, payload: unknown) {
+        if (module === GMCPModule.Char) {
             const data = payload as {
                 Info?: Parameters<typeof applyInfo>[0];
                 Vitals?: Parameters<typeof applyVitals>[0];
@@ -105,17 +106,17 @@ export const useCharStore = defineStore('char', () => {
             if (data.Worth) applyWorth(data.Worth);
             if (data.Skills) applySkills(data.Skills);
             if (data.Spells) applySpells(data.Spells);
-        } else if (module === 'Char.Info') {
+        } else if (module === GMCPModule.CharInfo) {
             applyInfo(payload as Parameters<typeof applyInfo>[0]);
-        } else if (module === 'Char.Vitals') {
+        } else if (module === GMCPModule.CharVitals) {
             applyVitals(payload as Parameters<typeof applyVitals>[0]);
-        } else if (module === 'Char.Stats') {
+        } else if (module === GMCPModule.CharStats) {
             applyStats(payload as Parameters<typeof applyStats>[0]);
-        } else if (module === 'Char.Worth') {
+        } else if (module === GMCPModule.CharWorth) {
             applyWorth(payload as Parameters<typeof applyWorth>[0]);
-        } else if (module === 'Char.Skills') {
+        } else if (module === GMCPModule.CharSkills) {
             applySkills(payload as CharSkill[]);
-        } else if (module === 'Char.Spells') {
+        } else if (module === GMCPModule.CharSpells) {
             applySpells(payload as CharSpell[]);
         }
     }

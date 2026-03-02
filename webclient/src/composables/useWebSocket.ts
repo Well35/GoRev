@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import type { GMCPModule } from '@/lib/gmcp';
 
 const parseGMCP = (msg: string): { module: string; payload: unknown } | null => {
     // Format: !!GMCP(Module.Name {...json...})
@@ -15,7 +16,7 @@ const parseGMCP = (msg: string): { module: string; payload: unknown } | null => 
 export const useWebSocket = (
     wsUrl: string,
     onData: (data: string) => void,
-    onGMCP?: (module: string, payload: unknown) => void,
+    onGMCP?: (module: GMCPModule, payload: unknown) => void,
 ) => {
     const connected = ref(false);
     let ws: WebSocket | null = null;
@@ -42,7 +43,7 @@ export const useWebSocket = (
             if (data.startsWith('!!GMCP(')) {
                 if (onGMCP) {
                     const parsed = parseGMCP(data);
-                    if (parsed) onGMCP(parsed.module, parsed.payload);
+                    if (parsed) onGMCP(parsed.module as GMCPModule, parsed.payload);
                 }
             } else if (!data.startsWith('!!MUSIC(') && !data.startsWith('!!SOUND(') && data !== 'TEXTMASK:true' && data !== 'TEXTMASK:false') {
                 onData(data);

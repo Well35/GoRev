@@ -1,16 +1,6 @@
 <script setup lang="ts">
-import Button from '@/components/ui/button.vue'
-
-const Directions = {
-    North: 'north',
-    South: 'south',
-    East:  'east',
-    West:  'west',
-    Up:    'up',
-    Down:  'down',
-} as const;
-
-type Direction = typeof Directions[keyof typeof Directions];
+import Button from '@/components/ui/button.vue';
+import { Directions, type Direction } from '@/types';
 
 const emit = defineEmits<{ move: [direction: Direction] }>();
 const go = (direction: Direction) => emit('move', direction);

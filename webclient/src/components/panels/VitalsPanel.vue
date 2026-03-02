@@ -7,20 +7,18 @@ const char = useCharStore();
 const pct = (cur: number, max: number) =>
     max > 0 ? Math.min(100, Math.max(0, (cur / max) * 100)) : 0;
 
-const fmt = (n: number) => n.toLocaleString();
-
 const hpPct = computed(() => pct(char.hp, char.hpMax));
 const spPct = computed(() => pct(char.sp, char.spMax));
 const xpPct = computed(() => pct(char.xp, char.tnl));
 
 const hpLabel = computed(() =>
-    char.hpMax > 0 ? `${fmt(char.hp)} / ${fmt(char.hpMax)}` : '-- / --'
+    char.hpMax > 0 ? `${char.hp.toLocaleString()} / ${char.hpMax.toLocaleString()}` : '-- / --'
 );
 const spLabel = computed(() =>
-    char.spMax > 0 ? `${fmt(char.sp)} / ${fmt(char.spMax)}` : '-- / --'
+    char.spMax > 0 ? `${char.sp.toLocaleString()} / ${char.spMax.toLocaleString()}` : '-- / --'
 );
 const xpLabel = computed(() =>
-    char.tnl > 0 ? `${fmt(char.xp)} / ${fmt(char.tnl)}` : '-- / --'
+    char.tnl > 0 ? `${char.xp.toLocaleString()} / ${char.tnl.toLocaleString()}` : '-- / --'
 );
 </script>
 

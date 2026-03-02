@@ -16,6 +16,7 @@ import TabsContent from '@/components/ui/tabs-content.vue';
 import { useWebSocket } from '@/composables/useWebSocket';
 import { useCharStore } from '@/stores/char';
 import { useRoomStore } from '@/stores/room';
+import type { Direction } from '@/types';
 
 const metaMudName =
     document.querySelector<HTMLMetaElement>('meta[name="gomud-mudname"]')?.content ?? 'GoMud';
@@ -102,7 +103,7 @@ const nameClass = (type: EntityType) => ({
     player: 'text-[var(--accent-blue)]',
 }[type]);
 
-const arrowKeyMap: Record<string, string> = {
+const arrowKeyMap: Partial<Record<string, Direction>> = {
     ArrowUp: 'north', ArrowDown: 'south', ArrowLeft: 'west', ArrowRight: 'east',
 };
 

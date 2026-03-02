@@ -4,8 +4,6 @@ import { useCharStore } from '@/stores/char';
 
 const char = useCharStore();
 
-const fmt = (n: number) => n.toLocaleString();
-
 const classLine = computed(() => {
     const parts = [char.race, char.charClass].filter(Boolean);
     return parts.length ? parts.join(' ') : '—';
@@ -28,11 +26,11 @@ const classLine = computed(() => {
 
             <div class="stat-line">
                 <span class="sname">Exp:</span>
-                <span class="sval">{{ char.xp > 0 ? fmt(char.xp) : '—' }}</span>
+                <span class="sval">{{ char.xp > 0 ? char.xp.toLocaleString() : '—' }}</span>
             </div>
             <div class="stat-line">
                 <span class="sname">For Level:</span>
-                <span class="sval">{{ char.tnl > 0 ? fmt(char.tnl) : '—' }}</span>
+                <span class="sval">{{ char.tnl > 0 ? char.tnl.toLocaleString() : '—' }}</span>
             </div>
             <div class="stat-line">
                 <span class="sname">Strength:</span>
@@ -60,7 +58,7 @@ const classLine = computed(() => {
             </div>
             <div class="stat-line">
                 <span class="sname">Gold:</span>
-                <span class="sval text-[#f0c040]">{{ char.gold > 0 ? fmt(char.gold) : '0' }}</span>
+                <span class="sval text-[#f0c040]">{{ char.gold > 0 ? char.gold.toLocaleString() : '0' }}</span>
             </div>
             <div class="stat-line">
                 <span class="sname">Skill Pts:</span>
