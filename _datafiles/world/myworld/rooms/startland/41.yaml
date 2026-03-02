@@ -1,0 +1,14 @@
+roomid: 41
+zone: Startland
+title: Residential Quarter
+description: Modest buildings line this quiet residential street.
+biome: house
+exits:
+  north:
+    roomid: 33
+  south:
+    roomid: 49
+  east:
+    roomid: 42
+  west:
+    roomid: 2

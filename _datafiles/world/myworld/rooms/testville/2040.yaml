@@ -1,0 +1,16 @@
+roomid: 2040
+zone: Testville
+title: Town Center
+description: A well-maintained road runs through the heart of town.
+biome: road
+exits:
+  north:
+    roomid: 2031
+  south:
+    roomid: 2049
+  east:
+    roomid: 2041
+  west:
+    roomid: 2039
+  portal:
+    roomid: 1

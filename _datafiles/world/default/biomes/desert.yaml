@@ -1,5 +1,6 @@
 biomeid: desert
 name: Desert
+color: "#c87818"
 symbol: '*'
 description: Harsh and dry.
 darkarea: false

@@ -1,5 +1,6 @@
 biomeid: farmland
 name: Farmland
+color: "#80a018"
 symbol: ','
 description: Cultivated land used for growing crops.
 darkarea: false

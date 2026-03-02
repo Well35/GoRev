@@ -1,0 +1,12 @@
+roomid: 2077
+zone: Testville
+title: Open Field
+description: Rolling grassland stretches in all directions under an open sky.
+biome: land
+exits:
+  north:
+    roomid: 2068
+  east:
+    roomid: 2078
+  west:
+    roomid: 2076

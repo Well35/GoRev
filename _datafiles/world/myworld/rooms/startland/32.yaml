@@ -1,0 +1,14 @@
+roomid: 32
+zone: Startland
+title: Town Road
+description: A well-maintained road runs through the heart of town.
+biome: road
+exits:
+  north:
+    roomid: 23
+  south:
+    roomid: 2
+  east:
+    roomid: 33
+  west:
+    roomid: 31

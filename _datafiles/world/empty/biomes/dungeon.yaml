@@ -1,5 +1,6 @@
 biomeid: dungeon
 name: Dungeon
+color: "#381818"
 symbol: •
 description: These are cave-like underground areas built with a purpose.
 darkarea: true

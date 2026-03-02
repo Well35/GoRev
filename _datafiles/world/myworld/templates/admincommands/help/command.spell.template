@@ -1,0 +1,16 @@
+The <ansi fg="command">spell</ansi> command can be used in the following ways:
+
+<ansi fg="command">spell create</ansi>
+Asks a series of questions and then creates a new spell and writes the file
+to the appropriate folder.
+
+<ansi fg="command">spell create [name/SpellId]</ansi>
+Same as above, but starts with a copy of the spell named.
+
+<ansi fg="command">spell list</ansi>
+List all spell names.
+
+<ansi fg="command">spell list [name-to-search]</ansi>
+List spells that match a provided search term. You can use a wildcard on either
+or both sides of the search term, such as <ansi fg="command">spell list *fire*</ansi>.
+

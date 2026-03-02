@@ -1,5 +1,6 @@
 biomeid: snow
 name: Snow
+color: "#9098b0"
 symbol: ❄
 description: Cold and wet.
 darkarea: false

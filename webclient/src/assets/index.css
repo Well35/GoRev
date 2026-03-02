@@ -1,51 +1,86 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @layer base {
-  :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --radius: 0.5rem;
-  }
+    :root {
+        /* Design system tokens — GoMud teal scheme */
+        --bg-app: #030c0c;
+        --bg-panel: #040e0e;
+        --bg-panel-header: #082222;
+        --border-panel: #1d5e5e;
+        --text-primary: #d0e4e0;
+        --text-secondary: #4a9898;
+        --text-muted: #1e4848;
+        --accent-blue: #00c0b0;
+        --color-hp: #dd2424;
+        --color-hp-bg: #200000;
+        --color-mana: #1a60e0;
+        --color-mana-bg: #00051e;
+        --color-exp: #9933cc;
+        --color-exp-bg: #0d0020;
+
+        /* shadcn component variables — mapped to GoMud teal theme */
+        --background: 180 60% 4%;
+        --foreground: 170 23% 85%;
+        --card: 180 56% 6%;
+        --card-foreground: 170 23% 85%;
+        --popover: 180 56% 6%;
+        --popover-foreground: 170 23% 85%;
+        --primary: 175 100% 38%;
+        --primary-foreground: 180 60% 4%;
+        --secondary: 180 53% 11%;
+        --secondary-foreground: 170 23% 85%;
+        --muted: 180 53% 11%;
+        --muted-foreground: 180 34% 44%;
+        --accent: 180 53% 11%;
+        --accent-foreground: 175 100% 38%;
+        --destructive: 0 65% 40%;
+        --destructive-foreground: 170 23% 85%;
+        --border: 180 58% 28%;
+        --input: 180 58% 28%;
+        --ring: 175 100% 38%;
+        --radius: 0rem;
+    }
 }
 
 @layer base {
-  * {
-    border-color: hsl(var(--border));
-  }
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: 'Courier New', Courier, monospace;
-  }
-  html, body, #app {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
+    * {
+        border-color: hsl(var(--border));
+        box-sizing: border-box;
+    }
+    body {
+        background-color: var(--bg-app);
+        color: var(--text-primary);
+        font-family: 'Courier New', Courier, monospace;
+    }
+    html,
+    body,
+    #app {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    button {
+        cursor: pointer;
+    }
+}
+
+/* Global scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-app);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-panel);
+    border-radius: 2px;
 }
 
 /* xterm.js overrides */
 .xterm {
-  height: 100%;
+    height: 100%;
 }
 .xterm-viewport {
-  overflow-y: auto !important;
+    overflow-y: auto !important;
 }

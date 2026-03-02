@@ -1,5 +1,6 @@
 biomeid: house
 name: House
+color: "#9a7040"
 symbol: ⌂
 description: Standard domiciles and other dwellings.
 darkarea: false

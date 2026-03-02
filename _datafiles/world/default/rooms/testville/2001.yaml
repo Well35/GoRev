@@ -1,0 +1,12 @@
+roomid: 2001
+zone: Testville
+title: Dense Woodland
+description: Tall trees press close on all sides, their canopies filtering dappled light.
+biome: forest
+exits:
+  south:
+    roomid: 2010
+  east:
+    roomid: 2002
+  west:
+    roomid: 2000

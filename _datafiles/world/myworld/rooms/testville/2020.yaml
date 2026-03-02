@@ -1,0 +1,14 @@
+roomid: 2020
+zone: Testville
+title: City Street
+description: Cobblestones line the street, worn smooth by countless footsteps.
+biome: city
+exits:
+  north:
+    roomid: 2011
+  south:
+    roomid: 2029
+  east:
+    roomid: 2021
+  west:
+    roomid: 2019

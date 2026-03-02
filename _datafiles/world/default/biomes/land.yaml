@@ -1,5 +1,6 @@
 biomeid: land
 name: Land
+color: "#607050"
 symbol: •
 description: The world is made of land.
 darkarea: false

@@ -1,5 +1,6 @@
 biomeid: fort
 name: Fort
+color: "#802020"
 symbol: •
 description: Forts are cities or dwellings that are fortified.
 darkarea: false

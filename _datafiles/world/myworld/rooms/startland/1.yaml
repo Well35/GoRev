@@ -9,6 +9,12 @@ biome: city
 exits:
   north:
     roomid: 2
+  south:
+    roomid: 57
+  east:
+    roomid: 49
+  west:
+    roomid: 48
 spawninfo:
 - mobid: 2
   message: A town guard emerges from a nearby building.

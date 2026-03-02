@@ -1,0 +1,14 @@
+roomid: 2032
+zone: Testville
+title: Residential Quarter
+description: Modest buildings line this quiet residential street.
+biome: house
+exits:
+  north:
+    roomid: 2023
+  south:
+    roomid: 2041
+  east:
+    roomid: 2033
+  west:
+    roomid: 2031

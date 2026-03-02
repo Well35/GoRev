@@ -1,0 +1,14 @@
+roomid: 55
+zone: Startland
+title: City Street
+description: Cobblestones line the street, worn smooth by countless footsteps.
+biome: city
+exits:
+  north:
+    roomid: 47
+  south:
+    roomid: 64
+  east:
+    roomid: 56
+  west:
+    roomid: 54

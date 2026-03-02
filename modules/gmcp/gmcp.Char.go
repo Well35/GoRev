@@ -15,6 +15,7 @@ import (
 	"github.com/GoMudEngine/GoMud/internal/quests"
 	"github.com/GoMudEngine/GoMud/internal/rooms"
 	"github.com/GoMudEngine/GoMud/internal/skills"
+	"github.com/GoMudEngine/GoMud/internal/spells"
 	"github.com/GoMudEngine/GoMud/internal/users"
 )
 
@@ -241,8 +242,7 @@ func (g *GMCPCharModule) charTrainedHandler(e events.Event) events.ListenerRetur
 		return events.Continue
 	}
 
-	// Changing equipment might affect stats, inventory, maxhp/maxmp etc
-	events.AddToQueue(GMCPCharUpdate{UserId: evt.UserId, Identifier: `Char.Stats, Char.Worth, Char.Vitals, Char.Inventory.Backpack.Summary`})
+	events.AddToQueue(GMCPCharUpdate{UserId: evt.UserId, Identifier: `Char.Stats, Char.Worth, Char.Vitals, Char.Inventory.Backpack.Summary, Char.Skills, Char.Spells`})
 
 	return events.Continue
 }
@@ -621,12 +621,76 @@ func (g *GMCPCharModule) GetCharNode(user *users.UserRecord, gmcpModule string) 
 		}
 	}
 
+	if all || g.wantsGMCPPayload(`Char.Skills`, gmcpModule) {
+
+		payload.Skills = []GMCPCharModule_Payload_Skill{}
+		for skillName, skillLevel := range user.Character.GetSkills() {
+			displayName := strings.ReplaceAll(strings.Title(skillName), `-`, ` `)
+			payload.Skills = append(payload.Skills, GMCPCharModule_Payload_Skill{
+				Id:    skillName,
+				Name:  displayName,
+				Level: skillLevel,
+			})
+		}
+
+		if !all {
+			return payload.Skills, `Char.Skills`
+		}
+	}
+
+	if all || g.wantsGMCPPayload(`Char.Spells`, gmcpModule) {
+
+		payload.Spells = []GMCPCharModule_Payload_Spell{}
+		for spellId, castCount := range user.Character.GetSpells() {
+			if castCount < 0 {
+				continue // negative count means spell is disabled
+			}
+			spellInfo := spells.GetSpell(spellId)
+			if spellInfo == nil {
+				continue
+			}
+			payload.Spells = append(payload.Spells, GMCPCharModule_Payload_Spell{
+				Id:          spellId,
+				Name:        spellInfo.Name,
+				Description: spellInfo.Description,
+				School:      string(spellInfo.School),
+				Type:        string(spellInfo.Type),
+				Cost:        spellInfo.Cost,
+			})
+		}
+
+		if !all {
+			return payload.Spells, `Char.Spells`
+		}
+	}
+
 	// If we reached this point and Char wasn't requested, we have a problem.
 	if !all {
 		mudlog.Error(`gmcp.Char`, `error`, `Bad module requested`, `module`, gmcpModule)
 	}
 
 	return payload, `Char`
+}
+
+// /////////////////
+// Char.Skills
+// /////////////////
+type GMCPCharModule_Payload_Skill struct {
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Level int    `json:"level"`
+}
+
+// /////////////////
+// Char.Spells
+// /////////////////
+type GMCPCharModule_Payload_Spell struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	School      string `json:"school"`
+	Type        string `json:"type"`
+	Cost        int    `json:"cost"`
 }
 
 // wantsGMCPPayload(`Char.Info`, `Char`)
@@ -657,6 +721,8 @@ type GMCPCharModule_Payload struct {
 	Worth     *GMCPCharModule_Payload_Worth            `json:"Worth,omitempty"`
 	Quests    []GMCPCharModule_Payload_Quest           `json:"Quests,omitempty"`
 	Pets      []GMCPCharModule_Payload_Pet             `json:"Pets,omitempty"`
+	Skills    []GMCPCharModule_Payload_Skill           `json:"Skills,omitempty"`
+	Spells    []GMCPCharModule_Payload_Spell           `json:"Spells,omitempty"`
 }
 
 // /////////////////

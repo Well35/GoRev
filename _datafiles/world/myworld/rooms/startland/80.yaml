@@ -1,0 +1,12 @@
+roomid: 80
+zone: Startland
+title: Dense Woodland
+description: Tall trees press close on all sides, their canopies filtering dappled light.
+biome: forest
+exits:
+  north:
+    roomid: 70
+  south:
+    roomid: 89
+  west:
+    roomid: 79

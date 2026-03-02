@@ -1,0 +1,14 @@
+roomid: 2048
+zone: Testville
+title: Fort Tower
+description: Thick stone walls rise around a defensive tower.
+biome: fort
+exits:
+  north:
+    roomid: 2039
+  south:
+    roomid: 2057
+  east:
+    roomid: 2049
+  west:
+    roomid: 2047

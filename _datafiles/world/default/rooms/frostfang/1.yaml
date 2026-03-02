@@ -20,6 +20,8 @@ exits:
     roomid: 12
   west:
     roomid: 7
+  portal:
+    roomid: 2040
 spawninfo:
 - mobid: 2
   message: A town guard emerges from a nearby building.

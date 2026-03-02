@@ -283,6 +283,13 @@ type MobDeath struct {
 
 func (l MobDeath) Type() string { return `MobDeath` }
 
+type MobDamaged struct {
+	MobInstanceId int
+	RoomId        int
+}
+
+func (l MobDamaged) Type() string { return `MobDamaged` }
+
 type DayNightCycle struct {
 	IsSunrise bool
 	Day       int
