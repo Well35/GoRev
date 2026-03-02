@@ -25,13 +25,13 @@ onMounted(() => {
 
   terminal = new Terminal({
     theme: {
-      background: '#0a0f1a',
-      foreground: '#e2e8f0',
-      cursor: '#e2e8f0',
-      black: '#0a0f1a',
-      brightBlack: '#1e293b',
-      white: '#e2e8f0',
-      brightWhite: '#f8fafc',
+      background: '#020a0a',
+      foreground: '#d0e4e0',
+      cursor: '#00c0b0',
+      black: '#020a0a',
+      brightBlack: '#0d2a2a',
+      white: '#d0e4e0',
+      brightWhite: '#eef8f6',
     },
     fontFamily: '"Courier New", Courier, monospace',
     fontSize: 14,
@@ -50,8 +50,6 @@ onMounted(() => {
     fitAddon?.fit()
   })
   resizeObserver.observe(containerRef.value)
-
-  terminal.focus()
 })
 
 onBeforeUnmount(() => {
@@ -61,7 +59,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#0a0f1a]">
+  <div class="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#020a0a]">
     <div ref="containerRef" class="flex-1 min-h-0 p-1" />
   </div>
 </template>

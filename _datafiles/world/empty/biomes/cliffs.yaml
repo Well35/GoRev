@@ -1,5 +1,6 @@
 biomeid: cliffs
 name: Cliffs
+color: "#787060"
 symbol: ▼
 description: Steep, rocky areas that can be dangerous to navigate.
 darkarea: false

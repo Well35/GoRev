@@ -1,5 +1,6 @@
 biomeid: mountains
 name: Mountains
+color: "#706050"
 symbol: ⩕
 description: Mountains can be difficult to traverse.
 darkarea: false

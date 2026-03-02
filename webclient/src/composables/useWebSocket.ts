@@ -1,13 +1,22 @@
 import { ref } from 'vue';
 
-const isProtocolMessage = (data: string): boolean =>
-    data.startsWith('!!GMCP(') ||
-    data.startsWith('!!MUSIC(') ||
-    data.startsWith('!!SOUND(') ||
-    data === 'TEXTMASK:true' ||
-    data === 'TEXTMASK:false';
+const parseGMCP = (msg: string): { module: string; payload: unknown } | null => {
+    // Format: !!GMCP(Module.Name {...json...})
+    const inner = msg.slice(7, -1); // strip leading !!GMCP( and trailing )
+    const spaceIdx = inner.indexOf(' ');
+    if (spaceIdx === -1) return null;
+    try {
+        return { module: inner.slice(0, spaceIdx), payload: JSON.parse(inner.slice(spaceIdx + 1)) };
+    } catch {
+        return null;
+    }
+};
 
-export const useWebSocket = (wsUrl: string, onData: (data: string) => void) => {
+export const useWebSocket = (
+    wsUrl: string,
+    onData: (data: string) => void,
+    onGMCP?: (module: string, payload: unknown) => void,
+) => {
     const connected = ref(false);
     let ws: WebSocket | null = null;
 
@@ -29,8 +38,14 @@ export const useWebSocket = (wsUrl: string, onData: (data: string) => void) => {
         };
 
         ws.onmessage = (event: MessageEvent) => {
-            if (!isProtocolMessage(event.data)) {
-                onData(event.data);
+            const data: string = event.data;
+            if (data.startsWith('!!GMCP(')) {
+                if (onGMCP) {
+                    const parsed = parseGMCP(data);
+                    if (parsed) onGMCP(parsed.module, parsed.payload);
+                }
+            } else if (!data.startsWith('!!MUSIC(') && !data.startsWith('!!SOUND(') && data !== 'TEXTMASK:true' && data !== 'TEXTMASK:false') {
+                onData(data);
             }
         };
     };

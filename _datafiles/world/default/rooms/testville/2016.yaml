@@ -1,0 +1,14 @@
+roomid: 2016
+zone: Testville
+title: Open Field
+description: Rolling grassland stretches in all directions under an open sky.
+biome: land
+exits:
+  north:
+    roomid: 2007
+  south:
+    roomid: 2025
+  east:
+    roomid: 2017
+  west:
+    roomid: 2015

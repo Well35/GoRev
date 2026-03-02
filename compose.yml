@@ -2,24 +2,21 @@ services:
   server:
     container_name: "go-mud-server"
     build:
-      dockerfile: ./provisioning/Dockerfile
-      args:
-        - BIN=go-mud-server
+      dockerfile: ./provisioning/Dockerfile.dev
+    image: localhost/go-mud-server:${TAG:-latest}
+    working_dir: /src
     networks:
       - mud_network
-    image: localhost/go-mud-server:${TAG:-latest}
     environment:
       SERVICE_NAME: go-mud-server
       PORT: 33333
-      CONFIG_PATH: /app/myconfig.yaml
+      CONFIG_PATH: /src/myconfig.yaml
     ports:
       - 33333:33333
       - 80:80
     volumes:
-      - type: volume
-        source: log-volume
-        target: /app/log
-      - ./myconfig.yaml:/app/myconfig.yaml
+      - .:/src
+      - go-mod-cache:/root/go/pkg/mod
 
   busybox:
     container_name: "server-logs"
@@ -27,11 +24,9 @@ services:
     command:
       - "tail"
       - "-F"
-      - "/app/log/logfile.log"
+      - "/src/log/logfile.log"
     volumes:
-      - type: volume
-        source: log-volume
-        target: /app/log
+      - .:/src
 
   terminal:
     container_name: "mud-terminal"
@@ -52,7 +47,7 @@ services:
       COLUMNS: 120
 
 volumes:
-  log-volume:
+  go-mod-cache:
 
 networks:
   mud_network:

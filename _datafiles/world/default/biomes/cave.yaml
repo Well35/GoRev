@@ -1,5 +1,6 @@
 biomeid: cave
 name: Cave
+color: "#2a2218"
 symbol: ⌬
 description: Dark areas underground.
 darkarea: true

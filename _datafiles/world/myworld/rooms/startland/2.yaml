@@ -5,8 +5,14 @@ description: You've reached the end of the line in Startland. One day, perhaps m
   will be built.
 biome: city
 exits:
+  north:
+    roomid: 32
   south:
     roomid: 1
+  east:
+    roomid: 41
+  west:
+    roomid: 40
 spawninfo:
 - mobid: 1
   message: A rat crawls out from a garbage pile.

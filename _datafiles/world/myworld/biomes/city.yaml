@@ -9,3 +9,4 @@ litarea: true
 requireditemid: 0
 usesitem: false
 burns: false
+color: "#b07840"

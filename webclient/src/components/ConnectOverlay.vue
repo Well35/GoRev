@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Button from '@/components/ui/button.vue'
+
 const props = defineProps<{
     mudName: string;
     connecting: boolean;
@@ -10,26 +12,22 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <div
-        class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm"
-    >
-        <div
-            class="flex flex-col items-center gap-6 p-8 rounded-xl border border-border bg-card shadow-2xl max-w-sm w-full mx-4"
-        >
-            <div class="text-center">
-                <h1 class="text-2xl font-bold mb-2">
-                    {{ mudName }}
-                </h1>
-                <p class="text-muted-foreground text-sm">Web Client</p>
+    <div class="absolute inset-0 z-50 flex items-center justify-center bg-[rgba(2,8,16,0.92)]">
+        <div class="flex flex-col items-center gap-4 py-9 px-12 bg-[var(--bg-panel)] border border-[var(--border-panel)] min-w-[280px]">
+            <div class="text-2xl font-bold text-[var(--accent-blue)] tracking-[0.1em] uppercase">
+                {{ mudName }}
             </div>
-
-            <button
+            <div class="text-[0.85rem] text-[var(--text-muted)] tracking-[0.06em] uppercase -mt-2">
+                Web Client
+            </div>
+            <Button
+                variant="primary"
                 :disabled="connecting"
-                class="w-full py-2.5 px-6 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                class="mt-2 w-full py-[10px] px-6 text-[0.9rem] font-bold tracking-[0.08em] uppercase"
                 @click="emit('connect')"
             >
                 {{ connecting ? 'Connecting…' : 'Connect' }}
-            </button>
+            </Button>
         </div>
     </div>
 </template>

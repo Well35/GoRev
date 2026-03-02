@@ -1,0 +1,10 @@
+roomid: 2000
+zone: Testville
+title: Sandy Wastes
+description: The dry, arid air carries grains of sand that sting exposed skin.
+biome: desert
+exits:
+  south:
+    roomid: 2009
+  east:
+    roomid: 2001

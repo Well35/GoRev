@@ -1,0 +1,14 @@
+roomid: 2069
+zone: Testville
+title: Farmland
+description: Rows of crops stretch across tilled earth.
+biome: farmland
+exits:
+  north:
+    roomid: 2060
+  south:
+    roomid: 2078
+  east:
+    roomid: 2070
+  west:
+    roomid: 2068

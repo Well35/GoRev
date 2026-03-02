@@ -1,0 +1,14 @@
+roomid: 50
+zone: Startland
+title: Sandy Wastes
+description: The dry, arid air carries grains of sand that sting exposed skin.
+biome: desert
+exits:
+  north:
+    roomid: 42
+  south:
+    roomid: 59
+  east:
+    roomid: 51
+  west:
+    roomid: 49

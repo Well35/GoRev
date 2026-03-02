@@ -1,5 +1,6 @@
 biomeid: road
 name: Road
+color: "#a09068"
 symbol: •
 description: Roads are well worn paths, generally well traveled.
 darkarea: false

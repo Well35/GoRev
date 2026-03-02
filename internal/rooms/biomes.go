@@ -14,6 +14,7 @@ type BiomeInfo struct {
 	BiomeId        string `yaml:"biomeid"`
 	Name           string `yaml:"name"`
 	Symbol         string `yaml:"symbol"`
+	Color          string `yaml:"color"`
 	Description    string `yaml:"description"`
 	DarkArea       bool   `yaml:"darkarea"`
 	LitArea        bool   `yaml:"litarea"`

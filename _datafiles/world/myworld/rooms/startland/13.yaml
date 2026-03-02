@@ -1,0 +1,12 @@
+roomid: 13
+zone: Startland
+title: Open Field
+description: Rolling grassland stretches in all directions under an open sky.
+biome: land
+exits:
+  south:
+    roomid: 22
+  east:
+    roomid: 14
+  west:
+    roomid: 12

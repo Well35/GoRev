@@ -1,0 +1,5 @@
+FROM golang:1.24.1-alpine3.21
+RUN apk add --update bash make
+RUN go install github.com/air-verse/air@latest
+WORKDIR /src
+ENTRYPOINT ["air"]

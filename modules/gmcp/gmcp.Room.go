@@ -35,6 +35,8 @@ func init() {
 	// Temporary for testing purposes.
 	events.RegisterListener(events.RoomChange{}, g.roomChangeHandler)
 	events.RegisterListener(events.PlayerDespawn{}, g.despawnHandler)
+	events.RegisterListener(events.MobDamaged{}, g.mobDamagedHandler)
+	events.RegisterListener(events.MobDeath{}, g.mobDeathHandler)
 	events.RegisterListener(GMCPRoomUpdate{}, g.buildAndSendGMCPPayload)
 
 }
@@ -94,6 +96,52 @@ func (g *GMCPRoomModule) despawnHandler(e events.Event) events.ListenerReturn {
 	return events.Continue
 }
 
+func (g *GMCPRoomModule) mobDamagedHandler(e events.Event) events.ListenerReturn {
+
+	evt, typeOk := e.(events.MobDamaged)
+	if !typeOk {
+		mudlog.Error("Event", "Expected Type", "MobDamaged", "Actual Type", e.Type())
+		return events.Cancel
+	}
+
+	room := rooms.LoadRoom(evt.RoomId)
+	if room == nil {
+		return events.Continue
+	}
+
+	for _, uId := range room.GetPlayers() {
+		events.AddToQueue(GMCPRoomUpdate{
+			UserId:     uId,
+			Identifier: `Room.Info.Contents.Npcs`,
+		})
+	}
+
+	return events.Continue
+}
+
+func (g *GMCPRoomModule) mobDeathHandler(e events.Event) events.ListenerReturn {
+
+	evt, typeOk := e.(events.MobDeath)
+	if !typeOk {
+		mudlog.Error("Event", "Expected Type", "MobDeath", "Actual Type", e.Type())
+		return events.Cancel
+	}
+
+	room := rooms.LoadRoom(evt.RoomId)
+	if room == nil {
+		return events.Continue
+	}
+
+	for _, uId := range room.GetPlayers() {
+		events.AddToQueue(GMCPRoomUpdate{
+			UserId:     uId,
+			Identifier: `Room.Info.Contents.Npcs`,
+		})
+	}
+
+	return events.Continue
+}
+
 func (g *GMCPRoomModule) roomChangeHandler(e events.Event) events.ListenerReturn {
 
 	evt, typeOk := e.(events.RoomChange)
@@ -143,9 +191,10 @@ func (g *GMCPRoomModule) roomChangeHandler(e events.Event) events.ListenerReturn
 	}
 
 	// Send update to the moved player about their new room.
+	// Room.Map first so the frontend has fresh tile data; Room.Info overlays current room details.
 	events.AddToQueue(GMCPRoomUpdate{
 		UserId:     evt.UserId,
-		Identifier: `Room.Info`,
+		Identifier: `Room.Map,Room.Info`,
 	})
 
 	return events.Continue
@@ -209,6 +258,11 @@ func (g *GMCPRoomModule) GetRoomNode(user *users.UserRecord, gmcpModule string) 
 	room := rooms.LoadRoom(user.Character.RoomId)
 	if room == nil {
 		return GMCPRoomModule_Payload{}, `Room.Info`
+	}
+
+	// Room.Map — batch of all rooms visible in the current viewport
+	if gmcpModule == `Room.Map` {
+		return g.buildRoomMapPayload(room), `Room.Map`
 	}
 
 	payload := GMCPRoomModule_Payload{}
@@ -318,6 +372,7 @@ func (g *GMCPRoomModule) GetRoomNode(user *users.UserRecord, gmcpModule string) 
 				Name:       mob.Character.Name,
 				Adjectives: mob.Character.GetAdjectives(),
 				Aggro:      mob.Character.Aggro != nil,
+				HpPct:      int(float64(mob.Character.Health) / float64(mob.Character.HealthMax.Value) * 100),
 			}
 
 			if len(mob.QuestFlags) > 0 {
@@ -352,7 +407,9 @@ func (g *GMCPRoomModule) GetRoomNode(user *users.UserRecord, gmcpModule string) 
 		payload.Id = room.RoomId
 		payload.Name = room.Title
 		payload.Area = room.Zone
-		payload.Environment = room.GetBiome().Name
+		biome := room.GetBiome()
+		payload.Environment = biome.Name
+		payload.Color = biome.Color
 		payload.Details = []string{}
 
 		// Coordinates
@@ -479,6 +536,7 @@ type GMCPRoomModule_Payload struct {
 	Name        string                                              `json:"name"`
 	Area        string                                              `json:"area"`
 	Environment string                                              `json:"environment"`
+	Color       string                                              `json:"color"`
 	Coordinates string                                              `json:"coords"`
 	Exits       map[string]int                                      `json:"exits"`
 	ExitsV2     map[string]GMCPRoomModule_Payload_Contents_ExitInfo `json:"exitsv2"`
@@ -510,6 +568,7 @@ type GMCPRoomModule_Payload_Contents_Character struct {
 	Adjectives []string `json:"adjectives"`
 	Aggro      bool     `json:"aggro"`
 	QuestFlag  bool     `json:"quest_flag"`
+	HpPct      int      `json:"hp_pct"`
 }
 
 type GMCPRoomModule_Payload_Contents_Item struct {
@@ -524,4 +583,80 @@ type GMCPRoomModule_Payload_Contents_Container struct {
 	HasKey       bool   `json:"haskey"`
 	HasPickCombo bool   `json:"haspickcombo"`
 	Usable       bool   `json:"usable"`
+}
+
+// ///////////////
+// Room.Map
+// ///////////////
+
+type GMCPRoomMap_Room struct {
+	Id    int            `json:"num"`
+	X     int            `json:"x"`
+	Y     int            `json:"y"`
+	Z     int            `json:"z"`
+	Color string         `json:"color"`
+	Exits map[string]int `json:"exits"`
+}
+
+// Viewport half-extents — match the frontend RX/RY constants plus a small buffer
+const mapRX = 10
+const mapRY = 7
+
+func (g *GMCPRoomModule) buildRoomMapPayload(currentRoom *rooms.Room) []GMCPRoomMap_Room {
+
+	m := mapper.GetMapper(currentRoom.RoomId)
+	if m == nil {
+		return []GMCPRoomMap_Room{}
+	}
+
+	cx, cy, cz, err := m.GetCoordinates(currentRoom.RoomId)
+	if err != nil {
+		return []GMCPRoomMap_Room{}
+	}
+
+	result := make([]GMCPRoomMap_Room, 0, 200)
+	for _, roomId := range m.CrawledRoomIds() {
+
+		x, y, z, err := m.GetCoordinates(roomId)
+		if err != nil {
+			continue
+		}
+		if z != cz {
+			continue
+		}
+		dx, dy := x-cx, y-cy
+		if dx < -mapRX || dx > mapRX || dy < -mapRY || dy > mapRY {
+			continue
+		}
+
+		r := rooms.LoadRoom(roomId)
+		if r == nil {
+			continue
+		}
+
+		color := ``
+		if biome := r.GetBiome(); biome != nil {
+			color = biome.Color
+		}
+
+		exits := map[string]int{}
+		for exitName, exitInfo := range r.Exits {
+			_, _, dz := mapper.GetDelta(exitName)
+			if dz != 0 {
+				continue
+			}
+			exits[exitName] = exitInfo.RoomId
+		}
+
+		result = append(result, GMCPRoomMap_Room{
+			Id:    roomId,
+			X:     x,
+			Y:     y,
+			Z:     z,
+			Color: color,
+			Exits: exits,
+		})
+	}
+
+	return result
 }

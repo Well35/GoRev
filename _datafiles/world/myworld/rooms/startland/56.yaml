@@ -1,0 +1,14 @@
+roomid: 56
+zone: Startland
+title: Fort Tower
+description: Thick stone walls rise around a defensive tower.
+biome: fort
+exits:
+  north:
+    roomid: 48
+  south:
+    roomid: 65
+  east:
+    roomid: 57
+  west:
+    roomid: 55

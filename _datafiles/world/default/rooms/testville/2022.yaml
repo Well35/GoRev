@@ -1,0 +1,14 @@
+roomid: 2022
+zone: Testville
+title: Town Road
+description: A well-maintained road runs through the heart of town.
+biome: road
+exits:
+  north:
+    roomid: 2013
+  south:
+    roomid: 2031
+  east:
+    roomid: 2023
+  west:
+    roomid: 2021

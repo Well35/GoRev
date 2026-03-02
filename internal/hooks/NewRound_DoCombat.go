@@ -537,6 +537,15 @@ func handlePlayerCombat(evt events.NewRound) (affectedPlayerIds []int, affectedM
 
 			roundResult = combat.AttackPlayerVsMob(user, defMob)
 
+			events.AddToQueue(events.MobDamaged{
+				MobInstanceId: defMob.InstanceId,
+				RoomId:        defMob.Character.RoomId,
+			})
+
+			if roundResult.DamageToSource != 0 {
+				events.AddToQueue(events.CharacterVitalsChanged{UserId: user.UserId})
+			}
+
 			for _, buffId := range roundResult.BuffSource {
 				user.AddBuff(buffId, `combat`)
 			}
@@ -836,6 +845,8 @@ func handleMobCombat(evt events.NewRound) (affectedPlayerIds []int, affectedMobI
 			var roundResult combat.AttackResult
 
 			roundResult = combat.AttackMobVsPlayer(mob, defUser)
+
+			events.AddToQueue(events.CharacterVitalsChanged{UserId: defUser.UserId})
 
 			// If a mob attacks a player, check whether player has a charmed mob helping them, and if so, they will move to attack back
 			room := rooms.LoadRoom(roomId)

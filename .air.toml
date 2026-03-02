@@ -1,0 +1,9 @@
+[build]
+  cmd = "go generate && go build -o ./tmp/go-mud-server ."
+  bin = "./tmp/go-mud-server"
+  include_ext = ["go"]
+  exclude_dir = ["_datafiles", "webclient", "tmp", "provisioning", "vendor"]
+  delay = 500
+
+[misc]
+  clean_on_exit = true
