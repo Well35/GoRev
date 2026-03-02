@@ -4,11 +4,5 @@ title: Residential Quarter
 description: Modest buildings line this quiet residential street.
 biome: house
 exits:
-  north:
-    roomid: 31
   south:
     roomid: 48
-  east:
-    roomid: 2
-  west:
-    roomid: 39

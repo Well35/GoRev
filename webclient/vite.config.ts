@@ -28,10 +28,15 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,
     proxy: {
       '/ws': {
         target: 'ws://localhost:80',
         ws: true,
+        changeOrigin: true,
+      },
+      '/api': {
+        target: 'http://localhost:80',
         changeOrigin: true,
       },
       '/static': {

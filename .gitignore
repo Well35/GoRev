@@ -9,6 +9,7 @@ vendor/
 server.crt
 server.key
 tmp-gomud.exe
+tmp/
 __debug*
 webclient/node_modules/
 _datafiles/html/public/app/

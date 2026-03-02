@@ -40,8 +40,8 @@ colors:
   map-mob: 9 # Bright red
   map-npc: 6 # Bright cyan
   map-here: 13 # Bright magenta
-  room-description: 15
-  room-description-dark: 8
+  room-description: 195   # Light cyan — clearly distinct from plain white text
+  room-description-dark: 73  # Muted teal for dark/night rooms
   map-default: 8
   map-room: 15 # Bright white
   map-target: 9 # Bright red
