@@ -36,7 +36,10 @@ interface RoomInfoPayload {
     environment?: string;
     color?: string;
     coords?: string;
-    exitsv2?: Record<string, { num: number; dx: number; dy: number; dz: number; details: string[] }>;
+    exitsv2?: Record<
+        string,
+        { num: number; dx: number; dy: number; dz: number; details: string[] }
+    >;
     Contents?: RoomContentsPayload;
 }
 
@@ -72,7 +75,7 @@ export const useRoomStore = defineStore('room', () => {
     });
 
     const currentRoom = computed<RoomData | null>(() =>
-        currentRoomId.value > 0 ? rooms[currentRoomId.value] ?? null : null
+        currentRoomId.value > 0 ? (rooms[currentRoomId.value] ?? null) : null
     );
 
     function applyRoomMap(data: RoomMapRoom[]) {

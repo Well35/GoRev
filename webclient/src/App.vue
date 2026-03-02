@@ -12,7 +12,6 @@ import Button from '@/components/ui/button.vue';
 import Tabs from '@/components/ui/tabs.vue';
 import TabsList from '@/components/ui/tabs-list.vue';
 import TabsTrigger from '@/components/ui/tabs-trigger.vue';
-import TabsContent from '@/components/ui/tabs-content.vue';
 import { useWebSocket } from '@/composables/useWebSocket';
 import { useCharStore } from '@/stores/char';
 import { useRoomStore } from '@/stores/room';
@@ -31,12 +30,16 @@ const wsUrl = `${wsProtocol}//${location.host}/ws`;
 const char = useCharStore();
 const room = useRoomStore();
 
-const webSocket = useWebSocket(wsUrl, (data) => {
-    terminalRef.value?.write(data);
-}, (module, payload) => {
-    char.handleGMCP(module, payload);
-    room.handleGMCP(module, payload);
-});
+const webSocket = useWebSocket(
+    wsUrl,
+    (data) => {
+        terminalRef.value?.write(data);
+    },
+    (module, payload) => {
+        char.handleGMCP(module, payload);
+        room.handleGMCP(module, payload);
+    }
+);
 
 const isConnected = computed(() => webSocket.connected.value);
 
@@ -66,8 +69,8 @@ const gridAreas = '"topbar topbar topbar" "left center right"';
 type EntityType = 'mob' | 'player';
 
 const roomTargets = computed(() => [
-    ...room.contents.npcs.map(e => ({ type: 'mob' as EntityType, entity: e })),
-    ...room.contents.players.map(e => ({ type: 'player' as EntityType, entity: e })),
+    ...room.contents.npcs.map((e) => ({ type: 'mob' as EntityType, entity: e })),
+    ...room.contents.players.map((e) => ({ type: 'player' as EntityType, entity: e })),
 ]);
 
 const selectedTarget = ref<number | null>(null);
@@ -89,22 +92,30 @@ watch(roomTargets, (targets) => {
 });
 
 // Clear selection when moving to a new room
-watch(() => room.currentRoomId, () => {
-    selectedTarget.value = null;
-});
+watch(
+    () => room.currentRoomId,
+    () => {
+        selectedTarget.value = null;
+    }
+);
 
-const tagClass = (type: EntityType) => ({
-    mob:    'text-[#cc4444] border border-[#6a1010] bg-[#1a0000]',
-    player: 'text-[var(--accent-blue)] border border-[#005050] bg-[#001414]',
-}[type]);
+const tagClass = (type: EntityType) =>
+    ({
+        mob: 'text-[#cc4444] border border-[#6a1010] bg-[#1a0000]',
+        player: 'text-[var(--accent-blue)] border border-[#005050] bg-[#001414]',
+    })[type];
 
-const nameClass = (type: EntityType) => ({
-    mob:    'text-[#c8a870]',
-    player: 'text-[var(--accent-blue)]',
-}[type]);
+const nameClass = (type: EntityType) =>
+    ({
+        mob: 'text-[#c8a870]',
+        player: 'text-[var(--accent-blue)]',
+    })[type];
 
 const arrowKeyMap: Partial<Record<string, Direction>> = {
-    ArrowUp: 'north', ArrowDown: 'south', ArrowLeft: 'west', ArrowRight: 'east',
+    ArrowUp: 'north',
+    ArrowDown: 'south',
+    ArrowLeft: 'west',
+    ArrowRight: 'east',
 };
 
 let lastMoveSent = 0;
@@ -133,29 +144,41 @@ const activeSkillTab = ref<SkillTab>('Skills');
         class="grid grid-cols-[260px_1fr_300px] grid-rows-[44px_1fr] h-full overflow-hidden bg-[var(--bg-app)] relative"
         :style="{ gridTemplateAreas: gridAreas }"
     >
-
         <!-- Top Bar -->
-        <div class="[grid-area:topbar] flex items-center px-3 bg-[var(--bg-panel-header)] border-b border-[var(--border-panel)] h-11 shrink-0">
+        <div
+            class="[grid-area:topbar] flex items-center px-3 bg-[var(--bg-panel-header)] border-b border-[var(--border-panel)] h-11 shrink-0"
+        >
             <div class="[flex:0_0_260px]">
-                <span class="text-[var(--accent-blue)] font-bold text-base tracking-[0.08em] uppercase">{{ metaMudName }}</span>
+                <span
+                    class="text-[var(--accent-blue)] font-bold text-base tracking-[0.08em] uppercase"
+                    >{{ metaMudName }}</span
+                >
             </div>
             <div class="flex-1 text-center text-[var(--text-primary)] text-sm">
                 <span>{{ room.currentRoom?.name ?? '' }}</span>
             </div>
             <div class="[flex:0_0_300px] flex items-center justify-end gap-[10px]">
-                <span class="text-[var(--text-secondary)] text-[0.82rem] py-[2px] px-[9px] bg-[#131f30] border border-[var(--border-panel)]">141ms</span>
-                <span class="text-[var(--text-secondary)] text-[0.82rem] py-[2px] px-[9px] bg-[#131f30] border border-[var(--border-panel)]">2 online</span>
+                <span
+                    class="text-[var(--text-secondary)] text-[0.82rem] py-[2px] px-[9px] bg-[#131f30] border border-[var(--border-panel)]"
+                    >141ms</span
+                >
+                <span
+                    class="text-[var(--text-secondary)] text-[0.82rem] py-[2px] px-[9px] bg-[#131f30] border border-[var(--border-panel)]"
+                    >2 online</span
+                >
                 <span
                     class="w-2 h-2 rounded-full shrink-0"
-                    :class="isConnected
-                        ? 'bg-[#22c55e] shadow-[0_0_5px_#22c55e80]'
-                        : 'bg-[#ef444480]'"
+                    :class="
+                        isConnected ? 'bg-[#22c55e] shadow-[0_0_5px_#22c55e80]' : 'bg-[#ef444480]'
+                    "
                 />
             </div>
         </div>
 
         <!-- Left Panel -->
-        <div class="[grid-area:left] flex flex-col overflow-y-auto overflow-x-hidden bg-[var(--bg-panel)] border-r border-[var(--border-panel)]">
+        <div
+            class="[grid-area:left] flex flex-col overflow-y-auto overflow-x-hidden bg-[var(--bg-panel)] border-r border-[var(--border-panel)]"
+        >
             <VitalsPanel />
             <StatsPanel />
             <MovementPanel @move="handleSend" />
@@ -168,51 +191,80 @@ const activeSkillTab = ref<SkillTab>('Skills');
         </div>
 
         <!-- Right Panel -->
-        <div class="[grid-area:right] flex flex-col bg-[var(--bg-panel)] border-l border-[var(--border-panel)] overflow-hidden">
-
+        <div
+            class="[grid-area:right] flex flex-col bg-[var(--bg-panel)] border-l border-[var(--border-panel)] overflow-hidden"
+        >
             <!-- Map Section -->
             <div class="shrink-0 border-b border-[var(--border-panel)]">
-                <div class="bg-[var(--bg-panel-header)] border-b border-[var(--border-panel)] px-2 py-1 flex justify-between items-center">
-                    <span class="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">Game Map</span>
-                    <span class="text-[0.75rem] text-[var(--accent-blue)] tracking-[0.03em]">{{ room.currentRoom?.area ?? '' }}</span>
+                <div
+                    class="bg-[var(--bg-panel-header)] border-b border-[var(--border-panel)] px-2 py-1 flex justify-between items-center"
+                >
+                    <span
+                        class="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]"
+                        >Game Map</span
+                    >
+                    <span class="text-[0.75rem] text-[var(--accent-blue)] tracking-[0.03em]">{{
+                        room.currentRoom?.area ?? ''
+                    }}</span>
                 </div>
                 <div class="w-[calc(100%-20px)] h-[150px] mx-auto my-[6px]">
                     <MapPanel />
                 </div>
                 <div
                     class="text-center text-[0.82rem] pt-[2px] pb-[7px] truncate px-2"
-                    :class="selectedEntity ? 'text-[var(--accent-blue)]' : 'text-[var(--text-secondary)]'"
-                >{{ selectedEntity ? selectedEntity.entity.name : 'No Target' }}</div>
+                    :class="
+                        selectedEntity
+                            ? 'text-[var(--accent-blue)]'
+                            : 'text-[var(--text-secondary)]'
+                    "
+                >
+                    {{ selectedEntity ? selectedEntity.entity.name : 'No Target' }}
+                </div>
             </div>
 
             <!-- Room Targets Section -->
             <div class="shrink-0 border-b border-[var(--border-panel)]">
-                <div class="bg-[var(--bg-panel-header)] border-b border-[var(--border-panel)] px-2 py-1 flex justify-between items-center">
-                    <span class="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">Room Targets</span>
+                <div
+                    class="bg-[var(--bg-panel-header)] border-b border-[var(--border-panel)] px-2 py-1 flex justify-between items-center"
+                >
+                    <span
+                        class="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]"
+                        >Room Targets</span
+                    >
                     <Button variant="ghost" class="text-[0.78rem] p-0">[+]</Button>
                 </div>
                 <div class="py-[2px] max-h-[190px] overflow-y-auto">
                     <div
                         v-if="roomTargets.length === 0"
                         class="px-2 py-2 text-[0.75rem] text-[var(--text-secondary)] italic"
-                    >No one here</div>
+                    >
+                        No one here
+                    </div>
                     <div
                         v-for="(entry, i) in roomTargets"
                         :key="entry.entity.id + i"
                         class="flex flex-col gap-[3px] px-2 pt-[3px] pb-1 cursor-pointer border-l-2 border-l-transparent text-[0.75rem] transition-[background-color,border-left-color] duration-100 hover:bg-[rgba(0,192,176,0.07)] hover:border-l-[var(--accent-blue)]"
-                        :class="selectedTarget === i ? 'bg-[rgba(0,192,176,0.13)] border-l-[var(--accent-blue)]' : ''"
+                        :class="
+                            selectedTarget === i
+                                ? 'bg-[rgba(0,192,176,0.13)] border-l-[var(--accent-blue)]'
+                                : ''
+                        "
                         @click="selectedTarget = i"
                     >
                         <div class="flex items-center gap-[6px]">
                             <span
                                 class="text-[0.62rem] font-bold tracking-[0.06em] px-1 py-px shrink-0 font-mono"
                                 :class="tagClass(entry.type)"
-                            >{{ entry.type === 'player' ? 'PC' : 'MOB' }}</span>
-                            <span :class="nameClass(entry.type)" class="truncate">{{ entry.entity.name }}</span>
+                                >{{ entry.type === 'player' ? 'PC' : 'MOB' }}</span
+                            >
+                            <span :class="nameClass(entry.type)" class="truncate">{{
+                                entry.entity.name
+                            }}</span>
                             <span
                                 v-if="entry.entity.aggro"
                                 class="ml-auto text-[0.6rem] text-[#cc4444] shrink-0"
-                            >!</span>
+                                >!</span
+                            >
                         </div>
                         <div v-if="entry.type === 'mob'" class="h-[2px] bg-[#0a1a0a] w-full">
                             <div
@@ -227,7 +279,13 @@ const activeSkillTab = ref<SkillTab>('Skills');
             <!-- Skills / Spells Section -->
             <Tabs v-model="activeSkillTab" class="flex-1 flex flex-col overflow-hidden min-h-0">
                 <TabsList>
-                    <TabsTrigger v-for="tab in skillTabs" :key="tab" :value="tab" :model-value="activeSkillTab" @update:model-value="activeSkillTab = $event">
+                    <TabsTrigger
+                        v-for="tab in skillTabs"
+                        :key="tab"
+                        :value="tab"
+                        :model-value="activeSkillTab"
+                        @update:model-value="activeSkillTab = $event"
+                    >
                         {{ tab }}
                     </TabsTrigger>
                 </TabsList>
@@ -236,21 +294,27 @@ const activeSkillTab = ref<SkillTab>('Skills');
                         <div
                             v-if="char.skills.length === 0"
                             class="text-[var(--text-secondary)] text-[0.78rem] text-center py-[14px]"
-                        >No skills learned</div>
+                        >
+                            No skills learned
+                        </div>
                         <div
                             v-for="skill in char.skills"
                             :key="skill.id"
                             class="flex items-center justify-between py-[3px] text-[0.78rem]"
                         >
                             <span class="text-[var(--text-primary)]">{{ skill.name }}</span>
-                            <span class="text-[var(--text-secondary)] font-mono shrink-0">{{ skill.level }}/4</span>
+                            <span class="text-[var(--text-secondary)] font-mono shrink-0"
+                                >{{ skill.level }}/4</span
+                            >
                         </div>
                     </template>
                     <template v-else>
                         <div
                             v-if="char.spells.length === 0"
                             class="text-[var(--text-secondary)] text-[0.78rem] text-center py-[14px]"
-                        >No spells learned</div>
+                        >
+                            No spells learned
+                        </div>
                         <Button
                             v-for="spell in char.spells"
                             :key="spell.id"
@@ -260,15 +324,21 @@ const activeSkillTab = ref<SkillTab>('Skills');
                             :title="spell.description"
                             @click="handleSend('cast ' + spell.id + cmdTarget)"
                         >
-                            <span class="text-[var(--accent-blue)] font-mono shrink-0">{{ spell.cost }}mp</span>
-                            <span class="text-[var(--text-primary)] truncate">{{ spell.name }}</span>
+                            <span class="text-[var(--accent-blue)] font-mono shrink-0"
+                                >{{ spell.cost }}mp</span
+                            >
+                            <span class="text-[var(--text-primary)] truncate">{{
+                                spell.name
+                            }}</span>
                         </Button>
                     </template>
                 </div>
             </Tabs>
 
             <!-- Quick-access window buttons -->
-            <div class="shrink-0 border-t border-[var(--border-panel)] pt-[6px] px-2 pb-2 bg-[var(--bg-panel)]">
+            <div
+                class="shrink-0 border-t border-[var(--border-panel)] pt-[6px] px-2 pb-2 bg-[var(--bg-panel)]"
+            >
                 <div class="grid grid-cols-2 gap-1">
                     <Button size="sm">Inventory</Button>
                     <Button size="sm">Equipment</Button>
@@ -280,7 +350,6 @@ const activeSkillTab = ref<SkillTab>('Skills');
                     <Button size="sm">Settings</Button>
                 </div>
             </div>
-
         </div>
 
         <ConnectOverlay

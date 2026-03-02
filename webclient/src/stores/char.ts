@@ -50,7 +50,13 @@ export const useCharStore = defineStore('char', () => {
     const skillPoints = ref(0);
     const trainingPoints = ref(0);
 
-    function applyInfo(i: { name?: string; class?: string; race?: string; alignment?: string; level?: number }) {
+    function applyInfo(i: {
+        name?: string;
+        class?: string;
+        race?: string;
+        alignment?: string;
+        level?: number;
+    }) {
         if (i.name !== undefined) name.value = i.name;
         if (i.class !== undefined) charClass.value = i.class;
         if (i.race !== undefined) race.value = i.race;
@@ -65,7 +71,14 @@ export const useCharStore = defineStore('char', () => {
         if (v.sp_max !== undefined) spMax.value = v.sp_max;
     }
 
-    function applyStats(s: { strength?: number; speed?: number; smarts?: number; vitality?: number; mysticism?: number; perception?: number }) {
+    function applyStats(s: {
+        strength?: number;
+        speed?: number;
+        smarts?: number;
+        vitality?: number;
+        mysticism?: number;
+        perception?: number;
+    }) {
         if (s.strength !== undefined) strength.value = s.strength;
         if (s.speed !== undefined) speed.value = s.speed;
         if (s.smarts !== undefined) smarts.value = s.smarts;
@@ -74,7 +87,13 @@ export const useCharStore = defineStore('char', () => {
         if (s.perception !== undefined) perception.value = s.perception;
     }
 
-    function applyWorth(w: { xp?: number; tnl?: number; gold_carry?: number; skillpoints?: number; trainingpoints?: number }) {
+    function applyWorth(w: {
+        xp?: number;
+        tnl?: number;
+        gold_carry?: number;
+        skillpoints?: number;
+        trainingpoints?: number;
+    }) {
         if (w.xp !== undefined) xp.value = w.xp;
         if (w.tnl !== undefined) tnl.value = w.tnl;
         if (w.gold_carry !== undefined) gold.value = w.gold_carry;
@@ -122,11 +141,28 @@ export const useCharStore = defineStore('char', () => {
     }
 
     return {
-        name, charClass, race, alignment, level,
-        hp, hpMax, sp, spMax,
-        strength, speed, smarts, vitality, mysticism, perception,
-        xp, tnl, gold, skillPoints, trainingPoints,
-        skills, spells,
+        name,
+        charClass,
+        race,
+        alignment,
+        level,
+        hp,
+        hpMax,
+        sp,
+        spMax,
+        strength,
+        speed,
+        smarts,
+        vitality,
+        mysticism,
+        perception,
+        xp,
+        tnl,
+        gold,
+        skillPoints,
+        trainingPoints,
+        skills,
+        spells,
         handleGMCP,
     };
 });

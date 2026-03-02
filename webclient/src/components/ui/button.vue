@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { type VariantProps, cva } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
+import { type VariantProps, cva } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
     'inline-flex items-center justify-center font-mono transition-colors disabled:pointer-events-none disabled:opacity-40',
@@ -32,8 +32,8 @@ const buttonVariants = cva(
             },
             size: {
                 default: 'px-[14px] py-[4px] text-[0.75rem]',
-                sm:      'px-1 py-[5px] text-[0.68rem]',
-                icon:    'w-[32px] h-[32px] p-0 text-base',
+                sm: 'px-1 py-[5px] text-[0.68rem]',
+                icon: 'w-[32px] h-[32px] p-0 text-base',
             },
         },
         defaultVariants: {
@@ -41,17 +41,17 @@ const buttonVariants = cva(
             size: 'default',
         },
     }
-)
+);
 
-export type ButtonVariants = VariantProps<typeof buttonVariants>
+export type ButtonVariants = VariantProps<typeof buttonVariants>;
 
 interface Props {
-    variant?: ButtonVariants['variant']
-    size?: ButtonVariants['size']
-    class?: string
+    variant?: ButtonVariants['variant'];
+    size?: ButtonVariants['size'];
+    class?: string;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 </script>
 
 <template>
