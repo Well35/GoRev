@@ -3,7 +3,8 @@ import { ref, computed, watch } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import TerminalPanel from '@/components/layout/TerminalPanel.vue';
 import InputBar from '@/components/layout/InputBar.vue';
-import ConnectOverlay from '@/components/ConnectOverlay.vue';
+import LoginOverlay from '@/components/LoginOverlay.vue';
+import CharacterSelectOverlay from '@/components/CharacterSelectOverlay.vue';
 import VitalsPanel from '@/components/panels/VitalsPanel.vue';
 import StatsPanel from '@/components/panels/StatsPanel.vue';
 import MovementPanel from '@/components/panels/MovementPanel.vue';
@@ -12,7 +13,9 @@ import Button from '@/components/ui/button.vue';
 import Tabs from '@/components/ui/tabs.vue';
 import TabsList from '@/components/ui/tabs-list.vue';
 import TabsTrigger from '@/components/ui/tabs-trigger.vue';
+import TabsContent from '@/components/ui/tabs-content.vue';
 import { useWebSocket } from '@/composables/useWebSocket';
+import { useAuthStore } from '@/stores/auth';
 import { useCharStore } from '@/stores/char';
 import { useRoomStore } from '@/stores/room';
 import type { Direction } from '@/types';
@@ -21,12 +24,11 @@ const metaMudName =
     document.querySelector<HTMLMetaElement>('meta[name="gomud-mudname"]')?.content ?? 'GoMud';
 
 const terminalRef = ref<{ write: (d: string) => void; focus: () => void } | null>(null);
-const hasConnected = ref(false);
-const connecting = ref(false);
 
 const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
 const wsUrl = `${wsProtocol}//${location.host}/ws`;
 
+const auth = useAuthStore();
 const char = useCharStore();
 const room = useRoomStore();
 
@@ -43,28 +45,26 @@ const webSocket = useWebSocket(
 
 const isConnected = computed(() => webSocket.connected.value);
 
-const handleConnect = () => {
-    connecting.value = true;
-    webSocket.connect();
-    const interval = setInterval(() => {
-        if (webSocket.connected.value) {
-            connecting.value = false;
-            hasConnected.value = true;
-            clearInterval(interval);
+watch(
+    () => auth.state,
+    (state) => {
+        if (state === 'playing' && auth.token && auth.selectedChar) {
+            webSocket.connect({ token: auth.token, char: auth.selectedChar });
+        } else if (state !== 'playing') {
+            webSocket.disconnect();
         }
-    }, 100);
-};
+    }
+);
 
 const handleSend = (cmd: string) => {
-    webSocket.send(cmd + '\n');
+    const trimmed = cmd.trim();
+    const out = trimmed.toLowerCase() === 'attack' && selectedEntity.value
+        ? 'attack' + cmdTarget.value
+        : cmd;
+    webSocket.send(out + '\n');
 };
 
-const showOverlay = computed(() => !hasConnected.value || !webSocket.connected.value);
-
-// grid-template-areas can't be expressed as a Tailwind utility
 const gridAreas = '"topbar topbar topbar" "left center right"';
-
-// ── Right Panel ──────────────────────────────────────────────────────────────
 
 type EntityType = 'mob' | 'player';
 
@@ -79,19 +79,16 @@ const selectedEntity = computed(() =>
     selectedTarget.value !== null ? (roomTargets.value[selectedTarget.value] ?? null) : null
 );
 
-// Command-ready target string — first word of name, lowercased
 const cmdTarget = computed(() =>
     selectedEntity.value ? ' ' + selectedEntity.value.entity.name.split(' ')[0].toLowerCase() : ''
 );
 
-// Clear selection when the target is no longer in the room
 watch(roomTargets, (targets) => {
     if (selectedTarget.value !== null && selectedTarget.value >= targets.length) {
         selectedTarget.value = null;
     }
 });
 
-// Clear selection when moving to a new room
 watch(
     () => room.currentRoomId,
     () => {
@@ -123,10 +120,17 @@ const MOVE_THROTTLE_MS = 250;
 
 useEventListener(document, 'keydown', (e: KeyboardEvent) => {
     if (!isConnected.value) return;
-    const dir = arrowKeyMap[e.key];
-    if (!dir) return;
     const tag = (e.target as HTMLElement).tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    if (e.ctrlKey && e.key === 'a') {
+        e.preventDefault();
+        handleSend('attack' + cmdTarget.value);
+        return;
+    }
+
+    const dir = arrowKeyMap[e.key];
+    if (!dir) return;
     e.preventDefault();
     const now = Date.now();
     if (now - lastMoveSent < MOVE_THROTTLE_MS) return;
@@ -352,11 +356,7 @@ const activeSkillTab = ref<SkillTab>('Skills');
             </div>
         </div>
 
-        <ConnectOverlay
-            v-if="showOverlay"
-            :mud-name="metaMudName"
-            :connecting="connecting"
-            @connect="handleConnect"
-        />
+        <LoginOverlay v-if="auth.state === 'login'" />
+        <CharacterSelectOverlay v-else-if="auth.state === 'character-select'" />
     </div>
 </template>

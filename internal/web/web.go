@@ -227,7 +227,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Listen(wg *sync.WaitGroup, webSocketHandler func(*websocket.Conn)) {
+func Listen(wg *sync.WaitGroup, webSocketHandler func(*websocket.Conn, *http.Request)) {
 
 	networkConfig := configs.GetNetworkConfig()
 
@@ -238,6 +238,13 @@ func Listen(wg *sync.WaitGroup, webSocketHandler func(*websocket.Conn)) {
 
 	// Routing
 	// Basic homepage
+
+	// REST API routes
+	http.HandleFunc("POST /api/login", apiHandler(apiLogin))
+	http.HandleFunc("POST /api/register", apiHandler(apiRegister))
+	http.HandleFunc("GET /api/characters", apiHandler(apiGetCharacters))
+	http.HandleFunc("POST /api/characters", apiHandler(apiCreateCharacter))
+	http.HandleFunc("GET /api/game-options", apiHandler(apiGameOptions))
 
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = `/static/images/favicon.ico`
@@ -256,7 +263,7 @@ func Listen(wg *sync.WaitGroup, webSocketHandler func(*websocket.Conn)) {
 		}
 		defer conn.Close()
 
-		webSocketHandler(conn)
+		webSocketHandler(conn, r)
 	})
 
 	http.Handle("GET /admin/static/", RunWithMUDLocked(

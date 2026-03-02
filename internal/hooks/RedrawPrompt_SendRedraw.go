@@ -8,6 +8,7 @@ import (
 	"github.com/GoMudEngine/GoMud/internal/users"
 )
 
+
 // Checks whether their level is too high for a guide
 func RedrawPrompt_SendRedraw(e events.Event) events.ListenerReturn {
 
@@ -18,6 +19,11 @@ func RedrawPrompt_SendRedraw(e events.Event) events.ListenerReturn {
 	}
 
 	if user := users.GetByUserId(evt.UserId); user != nil {
+
+		// Web client has its own UI for vitals — suppress the terminal prompt
+		if connections.IsWebsocket(user.ConnectionId()) {
+			return events.Continue
+		}
 
 		newCmdPrompt := user.GetCommandPrompt()
 

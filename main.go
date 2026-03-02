@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"path"
@@ -704,7 +705,7 @@ func handleTelnetConnection(connDetails *connections.ConnectionDetails, wg *sync
 
 }
 
-func HandleWebSocketConnection(conn *websocket.Conn) {
+func HandleWebSocketConnection(conn *websocket.Conn, r *http.Request) {
 
 	var userObject *users.UserRecord
 	connDetails := connections.Add(nil, conn)
@@ -712,9 +713,6 @@ func HandleWebSocketConnection(conn *websocket.Conn) {
 	// Setup shared state map for this connection's handlers
 	// Needs to be created BEFORE the first handler call
 	var sharedState map[string]any = make(map[string]any)
-
-	loginHandler := inputhandlers.GetLoginPromptHandler()           // Get the configured handler func
-	connDetails.AddInputHandler("LoginPromptHandler", loginHandler) // Add it with a unique name
 
 	// Describes whatever the client sent us
 	clientInput := &connections.ClientInput{
@@ -733,34 +731,65 @@ func HandleWebSocketConnection(conn *websocket.Conn) {
 
 	plugins.OnNetConnect(connDetails)
 
-	if audioConfig := audio.GetFile(`intro`); audioConfig.FilePath != `` {
-		v := 100
-		if audioConfig.Volume > 0 && audioConfig.Volume <= 100 {
-			v = audioConfig.Volume
+	// Token fast-path: skip login prompt if a valid session token is provided
+	tokenLogin := false
+	if token := r.URL.Query().Get("token"); token != "" {
+		if _, username, ok := web.ValidateToken(token); ok {
+			if loadedUser, err := users.LoadUser(username); err == nil {
+				charName := r.URL.Query().Get("char")
+				if charName != "" && loadedUser.Character.Name != charName {
+					loadedUser.SwapToAlt(charName)
+				}
+				if loggedInUser, _, err := users.LoginUser(loadedUser, connDetails.ConnectionId()); err == nil {
+					userObject = loggedInUser
+					tokenLogin = true
+				}
+			}
 		}
-		connections.SendTo(
-			[]byte("!!MUSIC("+audioConfig.FilePath+" V="+strconv.Itoa(v)+" L=-1 C=1)"),
-			clientInput.ConnectionId,
-		)
 	}
 
-	// --- Send Initial Welcome/Splash ---
-	// (This part was mostly correct before)
-	splashTxt, _ := templates.Process("login/connect-splash", nil)
-	connections.SendTo([]byte(templates.AnsiParse(splashTxt)), connDetails.ConnectionId())
+	if tokenLogin {
+		events.AddToQueue(events.WebClientCommand{
+			ConnectionId: clientInput.ConnectionId,
+			Text:         `TEXTMASK:false`,
+		})
+		connections.SendTo([]byte("!!MUSIC(Off)"), clientInput.ConnectionId)
 
-	// --- Trigger the Prompt Handler to initialize state and send the FIRST prompt ---
-	// Create a dummy input that signifies "start the process" but has no actual user data/control codes.
-	initialTriggerInput := &connections.ClientInput{
-		ConnectionId: connDetails.ConnectionId(),
-		// Ensure flags like EnterPressed are false
+		connDetails.AddInputHandler("EchoInputHandler", inputhandlers.EchoInputHandler)
+		connDetails.AddInputHandler("HistoryInputHandler", inputhandlers.HistoryInputHandler)
+
+		if userObject.Role == users.RoleAdmin {
+			connDetails.AddInputHandler("SystemCommandInputHandler", inputhandlers.SystemCommandInputHandler)
+		}
+
+		connDetails.AddInputHandler("SignalHandler", inputhandlers.SignalHandler, "AnsiHandler")
+		connDetails.SetState(connections.LoggedIn)
+		worldManager.SendEnterWorld(userObject.UserId, userObject.Character.RoomId)
+	} else {
+		loginHandler := inputhandlers.GetLoginPromptHandler()           // Get the configured handler func
+		connDetails.AddInputHandler("LoginPromptHandler", loginHandler) // Add it with a unique name
+
+		if audioConfig := audio.GetFile(`intro`); audioConfig.FilePath != `` {
+			v := 100
+			if audioConfig.Volume > 0 && audioConfig.Volume <= 100 {
+				v = audioConfig.Volume
+			}
+			connections.SendTo(
+				[]byte("!!MUSIC("+audioConfig.FilePath+" V="+strconv.Itoa(v)+" L=-1 C=1)"),
+				clientInput.ConnectionId,
+			)
+		}
+
+		// --- Send Initial Welcome/Splash ---
+		splashTxt, _ := templates.Process("login/connect-splash", nil)
+		connections.SendTo([]byte(templates.AnsiParse(splashTxt)), connDetails.ConnectionId())
+
+		// --- Trigger the Prompt Handler to initialize state and send the FIRST prompt ---
+		initialTriggerInput := &connections.ClientInput{
+			ConnectionId: connDetails.ConnectionId(),
+		}
+		loginHandler(initialTriggerInput, sharedState)
 	}
-	// Call the handler function directly ONCE.
-	// This executes the `!ok` block inside the handler, which:
-	// 1. Creates the PromptHandlerState in sharedState.
-	// 2. Calls advanceAndSendPromptCustom -> sendPromptFunc for the *first* step (username).
-	// 3. Returns false (which we ignore here, as we aren't in the main loop yet).
-	loginHandler(initialTriggerInput, sharedState)
 
 	c := configs.GetConfig()
 

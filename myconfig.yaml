@@ -1,6 +1,8 @@
-Server:
-  MudName: "Go Rev"
 FilePaths:
   DataFiles: _datafiles/world/myworld
 Network:
   HttpPort: 80
+Server:
+  CurrentVersion: 0.9.1
+  MudName: Go Rev
+  NextRoomId: 2081

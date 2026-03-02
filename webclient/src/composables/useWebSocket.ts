@@ -21,9 +21,10 @@ export const useWebSocket = (
     const connected = ref(false);
     let ws: WebSocket | null = null;
 
-    const connect = () => {
+    const connect = (params?: Record<string, string>) => {
         if (ws) ws.close();
-        ws = new WebSocket(wsUrl);
+        const url = params ? wsUrl + '?' + new URLSearchParams(params).toString() : wsUrl;
+        ws = new WebSocket(url);
 
         ws.onopen = () => {
             connected.value = true;

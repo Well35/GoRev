@@ -456,7 +456,7 @@ func lookRoom(user *users.UserRecord, roomId int, secretLook bool) {
 
 	tinyMapOn := user.GetConfigOption(`tinymap`)
 	if tinyMapOn == nil {
-		tinyMapOn = true
+		tinyMapOn = false
 	}
 
 	if user.ScreenReader {

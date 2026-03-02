@@ -286,6 +286,25 @@ func LogOutUserByConnectionId(connectionId connections.ConnectionId) error {
 	return errors.New("user not found for connection")
 }
 
+// CreateUserRecord creates a user on disk without registering them as an active
+// (connected) user. Use this when creating users outside of a live WS/telnet
+// connection, e.g. from the HTTP REST API. The user will be able to call
+// LoginUser normally once they establish a connection.
+func CreateUserRecord(u *UserRecord) error {
+
+	if err := ValidateName(u.Username); err != nil {
+		return errors.New("that username is not allowed: " + err.Error())
+	}
+
+	u.UserId = GetUniqueUserId()
+	u.Role = RoleUser
+
+	idx := NewUserIndex()
+	idx.AddUser(u.UserId, u.Username)
+
+	return SaveUser(*u)
+}
+
 // First time creating a user.
 func CreateUser(u *UserRecord) error {
 
