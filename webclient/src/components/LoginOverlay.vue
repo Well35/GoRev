@@ -49,7 +49,9 @@ function switchTab(tab: 'login' | 'register') {
                 <div class="text-xl font-bold text-[var(--accent-blue)] tracking-[0.1em] uppercase">
                     GoMud
                 </div>
-                <div class="text-[0.8rem] text-[var(--text-muted)] tracking-[0.06em] uppercase mt-1">
+                <div
+                    class="text-[0.8rem] text-[var(--text-muted)] tracking-[0.06em] uppercase mt-1"
+                >
                     Web Client
                 </div>
             </div>
@@ -78,7 +80,10 @@ function switchTab(tab: 'login' | 'register') {
                 @submit.prevent="activeTab === 'login' ? handleLogin() : handleRegister()"
             >
                 <div class="flex flex-col gap-1">
-                    <label class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]">Username</label>
+                    <label
+                        class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]"
+                        >Username</label
+                    >
                     <Input
                         v-model="username"
                         autocomplete="username"
@@ -87,7 +92,10 @@ function switchTab(tab: 'login' | 'register') {
                     />
                 </div>
                 <div class="flex flex-col gap-1">
-                    <label class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]">Password</label>
+                    <label
+                        class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]"
+                        >Password</label
+                    >
                     <Input
                         v-model="password"
                         type="password"
@@ -97,7 +105,10 @@ function switchTab(tab: 'login' | 'register') {
                     />
                 </div>
                 <div v-if="activeTab === 'register'" class="flex flex-col gap-1">
-                    <label class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]">Confirm Password</label>
+                    <label
+                        class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]"
+                        >Confirm Password</label
+                    >
                     <Input
                         v-model="confirmPassword"
                         type="password"

@@ -1,0 +1,10 @@
+itemid: 10003
+name: staff
+namesimple: staff
+description: A sturdy wooden staff favored by mages for channeling magic.
+type: weapon
+hands: 2
+subtype: bludgeoning
+uses: 0
+damage:
+  diceroll: 1d6

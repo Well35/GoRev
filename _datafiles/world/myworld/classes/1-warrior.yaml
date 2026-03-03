@@ -1,0 +1,16 @@
+classid: 1
+name: warrior
+description: A hardened fighter trained in melee combat and brute strength.
+selectable: true
+statbonuses:
+  strength:
+    base: 2
+  vitality:
+    base: 1
+startingskills:
+  brawling: 1
+  dual-wield: 1
+startingspells: {}
+startingitems:
+  - 10002
+  - 20011

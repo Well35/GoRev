@@ -1,0 +1,17 @@
+classid: 2
+name: mage
+description: A student of the arcane arts who wields powerful magic.
+selectable: true
+statbonuses:
+  mysticism:
+    base: 2
+  smarts:
+    base: 1
+startingskills:
+  cast: 1
+  enchant: 1
+startingspells:
+  sparks: 1
+startingitems:
+  - 10003
+  - 20010

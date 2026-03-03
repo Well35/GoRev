@@ -1,0 +1,10 @@
+itemid: 10002
+name: shortsword
+namesimple: sword
+description: A short, reliable blade well-suited for a beginning warrior.
+type: weapon
+hands: 1
+subtype: slashing
+uses: 0
+damage:
+  diceroll: 1d6

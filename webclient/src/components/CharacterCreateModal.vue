@@ -8,16 +8,17 @@ import Input from '@/components/ui/input.vue';
 const emit = defineEmits<{ close: [] }>();
 
 const auth = useAuthStore();
-const { races } = useGameOptions();
+const { races, classes } = useGameOptions();
 
 const name = ref('');
 const selectedRaceId = ref<number | null>(null);
+const selectedClassId = ref<number | null>(null);
 const loading = ref(false);
 
 async function handleSubmit() {
-    if (!name.value || selectedRaceId.value === null) return;
+    if (!name.value || selectedRaceId.value === null || selectedClassId.value === null) return;
     loading.value = true;
-    await auth.createCharacter(name.value, selectedRaceId.value);
+    await auth.createCharacter(name.value, selectedRaceId.value, selectedClassId.value);
     loading.value = false;
     if (!auth.error) {
         emit('close');
@@ -31,58 +32,92 @@ async function handleSubmit() {
         @click.self="emit('close')"
     >
         <div
-            class="flex flex-col gap-4 py-7 px-8 bg-[var(--bg-panel)] border border-[var(--border-panel)] w-[360px]"
+            class="flex flex-col gap-4 py-7 px-8 bg-[var(--bg-panel)] border border-[var(--border-panel)] w-[520px]"
         >
+            <!-- Header -->
             <div class="flex items-center justify-between">
-                <span class="text-[0.85rem] font-bold text-[var(--text-primary)] uppercase tracking-[0.08em]">
+                <span
+                    class="text-[0.85rem] font-bold text-[var(--text-primary)] uppercase tracking-[0.08em]"
+                >
                     Create Character
                 </span>
                 <button
                     class="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-lg leading-none"
                     @click="emit('close')"
-                >×</button>
+                >
+                    ×
+                </button>
             </div>
 
-            <form class="flex flex-col gap-3" @submit.prevent="handleSubmit">
+            <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
                 <div class="flex flex-col gap-1">
-                    <label class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]">
+                    <label
+                        class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]"
+                    >
                         Character Name
                     </label>
-                    <Input
-                        v-model="name"
-                        :disabled="loading"
-                        placeholder="Enter character name"
-                    />
+                    <Input v-model="name" :disabled="loading" placeholder="Enter character name" />
                 </div>
 
-                <div class="flex flex-col gap-1">
-                    <label class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]">
-                        Race
-                    </label>
-                    <div class="flex flex-col gap-1 max-h-[180px] overflow-y-auto pr-1">
-                        <div
-                            v-if="races.length === 0"
-                            class="text-[0.78rem] text-[var(--text-secondary)] italic py-2"
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1">
+                        <label
+                            class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]"
                         >
-                            Loading races…
+                            Race
+                        </label>
+                        <div class="flex flex-col gap-1 max-h-[220px] overflow-y-auto pr-0.5">
+                            <div
+                                v-if="races.length === 0"
+                                class="text-[0.75rem] text-[var(--text-secondary)] italic py-3 text-center"
+                            >
+                                Loading…
+                            </div>
+                            <button
+                                v-for="race in races"
+                                :key="race.id"
+                                type="button"
+                                class="text-left px-2.5 py-2 text-[0.78rem] border transition-colors w-full"
+                                :class="
+                                    selectedRaceId === race.id
+                                        ? 'border-[var(--accent-blue)] bg-[rgba(0,192,176,0.1)] text-[var(--text-primary)]'
+                                        : 'border-[var(--border-panel)] bg-[#061414] text-[var(--text-secondary)] hover:border-[var(--accent-blue)] hover:text-[var(--text-primary)]'
+                                "
+                                @click="selectedRaceId = race.id"
+                            >
+                                <span class="font-semibold capitalize">{{ race.name }}</span>
+                            </button>
                         </div>
-                        <button
-                            v-for="race in races"
-                            :key="race.id"
-                            type="button"
-                            class="text-left px-3 py-2 text-[0.8rem] border transition-colors"
-                            :class="
-                                selectedRaceId === race.id
-                                    ? 'border-[var(--accent-blue)] bg-[rgba(0,192,176,0.1)] text-[var(--text-primary)]'
-                                    : 'border-[var(--border-panel)] bg-[#061414] text-[var(--text-secondary)] hover:border-[var(--accent-blue)] hover:text-[var(--text-primary)]'
-                            "
-                            @click="selectedRaceId = race.id"
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label
+                            class="text-[0.75rem] text-[var(--text-secondary)] uppercase tracking-[0.06em]"
                         >
-                            <span class="font-semibold">{{ race.name }}</span>
-                            <span v-if="race.description" class="block text-[0.72rem] mt-0.5 opacity-70">
-                                {{ race.description }}
-                            </span>
-                        </button>
+                            Class
+                        </label>
+                        <div class="flex flex-col gap-1 max-h-[220px] overflow-y-auto pr-0.5">
+                            <div
+                                v-if="classes.length === 0"
+                                class="text-[0.75rem] text-[var(--text-secondary)] italic py-3 text-center"
+                            >
+                                Loading…
+                            </div>
+                            <button
+                                v-for="cls in classes"
+                                :key="cls.id"
+                                type="button"
+                                class="text-left px-2.5 py-2 text-[0.78rem] border transition-colors w-full"
+                                :class="
+                                    selectedClassId === cls.id
+                                        ? 'border-[var(--accent-blue)] bg-[rgba(0,192,176,0.1)] text-[var(--text-primary)]'
+                                        : 'border-[var(--border-panel)] bg-[#061414] text-[var(--text-secondary)] hover:border-[var(--accent-blue)] hover:text-[var(--text-primary)]'
+                                "
+                                @click="selectedClassId = cls.id"
+                            >
+                                <span class="font-semibold capitalize">{{ cls.name }}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -93,7 +128,7 @@ async function handleSubmit() {
                     {{ auth.error }}
                 </div>
 
-                <div class="flex gap-2 mt-1">
+                <div class="flex gap-2">
                     <Button
                         type="button"
                         variant="ghost"
@@ -105,7 +140,9 @@ async function handleSubmit() {
                     <Button
                         type="submit"
                         variant="primary"
-                        :disabled="loading || !name || selectedRaceId === null"
+                        :disabled="
+                            loading || !name || selectedRaceId === null || selectedClassId === null
+                        "
                         class="flex-1 py-[8px] text-[0.85rem] font-bold uppercase tracking-[0.06em]"
                     >
                         {{ loading ? '...' : 'Create' }}

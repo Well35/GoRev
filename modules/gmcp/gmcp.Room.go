@@ -373,6 +373,7 @@ func (g *GMCPRoomModule) GetRoomNode(user *users.UserRecord, gmcpModule string) 
 				Adjectives: mob.Character.GetAdjectives(),
 				Aggro:      mob.Character.Aggro != nil,
 				HpPct:      int(float64(mob.Character.Health) / float64(mob.Character.HealthMax.Value) * 100),
+				Level:      mob.Character.Level,
 			}
 
 			if len(mob.QuestFlags) > 0 {
@@ -569,6 +570,7 @@ type GMCPRoomModule_Payload_Contents_Character struct {
 	Aggro      bool     `json:"aggro"`
 	QuestFlag  bool     `json:"quest_flag"`
 	HpPct      int      `json:"hp_pct"`
+	Level      int      `json:"level"`
 }
 
 type GMCPRoomModule_Payload_Contents_Item struct {

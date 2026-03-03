@@ -4,9 +4,13 @@ import { useCharStore } from '@/stores/char';
 
 const char = useCharStore();
 
+function titleCase(s: string) {
+    return s.replace(/\b\w/g, c => c.toUpperCase());
+}
+
 const classLine = computed(() => {
     const parts = [char.race, char.charClass].filter(Boolean);
-    return parts.length ? parts.join(' ') : '—';
+    return parts.length ? titleCase(parts.join(' ')) : '—';
 });
 </script>
 
