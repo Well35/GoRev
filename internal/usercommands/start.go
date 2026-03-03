@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/GoMudEngine/GoMud/internal/characters"
+	"github.com/GoMudEngine/GoMud/internal/classes"
 	"github.com/GoMudEngine/GoMud/internal/configs"
 	"github.com/GoMudEngine/GoMud/internal/events"
 	"github.com/GoMudEngine/GoMud/internal/mobs"
@@ -109,6 +110,70 @@ func Start(rest string, user *users.UserRecord, room *rooms.Room, flags events.E
 			tplTxt, _ := templates.Process("tables/numbered-list", raceOptions, user.UserId)
 			user.SendText(tplTxt)
 			user.SendText(`  Want to know more details? Type <ansi fg="command">help {racename}</ansi> or <ansi fg="command">help {number}</ansi>`)
+			user.SendText(``)
+
+			return true, nil
+		}
+	}
+
+	if user.Character.ClassId == 0 {
+
+		classOptions := []templates.NameDescription{}
+
+		for _, cl := range classes.GetClasses() {
+			if cl.Selectable {
+				classOptions = append(classOptions, templates.NameDescription{
+					Id:          cl.ClassId,
+					Name:        cl.Name,
+					Description: cl.Description,
+				})
+			}
+		}
+		sort.SliceStable(classOptions, func(i, j int) bool {
+			return classOptions[i].Name < classOptions[j].Name
+		})
+
+		question := cmdPrompt.Ask(`Which class will you be?`, []string{})
+		if !question.Done {
+
+			tplTxt, _ := templates.Process("tables/numbered-list", classOptions, user.UserId)
+			user.SendText(tplTxt)
+			user.SendText(``)
+			return true, nil
+		}
+
+		classNameSelection := question.Response
+		if restNum, err := strconv.Atoi(classNameSelection); err == nil {
+			if restNum > 0 && restNum <= len(classOptions) {
+				classNameSelection = classOptions[restNum-1].Name
+			}
+		}
+
+		matchFound := false
+		for _, cl := range classes.GetClasses() {
+			if strings.EqualFold(cl.Name, classNameSelection) {
+
+				if cl.Selectable {
+					matchFound = true
+					if err := user.Character.ApplyClass(cl.ClassId); err != nil {
+						user.SendText(`Error applying class: ` + err.Error())
+						question.RejectResponse()
+						return true, nil
+					}
+
+					user.SendText(``)
+					user.SendText(fmt.Sprintf(`  <ansi fg="magenta">*** You have chosen the path of the %s ***</ansi>%s`, cl.Name, term.CRLFStr))
+					break
+				}
+
+			}
+		}
+
+		if !matchFound {
+			question.RejectResponse()
+
+			tplTxt, _ := templates.Process("tables/numbered-list", classOptions, user.UserId)
+			user.SendText(tplTxt)
 			user.SendText(``)
 
 			return true, nil

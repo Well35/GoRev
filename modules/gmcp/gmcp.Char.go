@@ -14,6 +14,7 @@ import (
 	"github.com/GoMudEngine/GoMud/internal/plugins"
 	"github.com/GoMudEngine/GoMud/internal/quests"
 	"github.com/GoMudEngine/GoMud/internal/rooms"
+	"github.com/GoMudEngine/GoMud/internal/classes"
 	"github.com/GoMudEngine/GoMud/internal/skills"
 	"github.com/GoMudEngine/GoMud/internal/spells"
 	"github.com/GoMudEngine/GoMud/internal/users"
@@ -26,6 +27,17 @@ import (
 // perform any other setup tasks that need to be done before the
 // program starts running.
 // ////////////////////////////////////////////////////////////////////
+// classNameOrProfession returns the character's class name if one is set,
+// otherwise falls back to the dynamically derived skill profession.
+func classNameOrProfession(user *users.UserRecord) string {
+	if user.Character.ClassId > 0 {
+		if cl := classes.GetClass(user.Character.ClassId); cl != nil {
+			return cl.Name
+		}
+	}
+	return skills.GetProfession(user.Character.GetAllSkillRanks())
+}
+
 func init() {
 
 	//
@@ -346,7 +358,7 @@ func (g *GMCPCharModule) GetCharNode(user *users.UserRecord, gmcpModule string) 
 		payload.Info = &GMCPCharModule_Payload_Info{
 			Account:   user.Username,
 			Name:      user.Character.Name,
-			Class:     skills.GetProfession(user.Character.GetAllSkillRanks()),
+			Class:     classNameOrProfession(user),
 			Race:      user.Character.Race(),
 			Alignment: user.Character.AlignmentName(),
 			Level:     user.Character.Level,

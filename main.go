@@ -21,6 +21,7 @@ import (
 	"github.com/GoMudEngine/GoMud/internal/audio"
 	"github.com/GoMudEngine/GoMud/internal/buffs"
 	"github.com/GoMudEngine/GoMud/internal/characters"
+	"github.com/GoMudEngine/GoMud/internal/classes"
 	"github.com/GoMudEngine/GoMud/internal/colorpatterns"
 	"github.com/GoMudEngine/GoMud/internal/configs"
 	"github.com/GoMudEngine/GoMud/internal/connections"
@@ -979,6 +980,7 @@ func loadAllDataFiles(isReload bool) {
 	buffs.LoadDataFiles() // Load buffs before items for cost calculation reasons
 	items.LoadDataFiles()
 	races.LoadDataFiles()
+	classes.LoadDataFiles()
 	mobs.LoadDataFiles()
 	pets.LoadDataFiles()
 	quests.LoadDataFiles()

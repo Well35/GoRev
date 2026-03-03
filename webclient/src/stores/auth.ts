@@ -6,6 +6,7 @@ export type AuthState = 'login' | 'character-select' | 'playing';
 export interface CharacterSummary {
     name: string;
     race: string;
+    class: string;
     level: number;
 }
 
@@ -60,7 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
         characters.value = data.characters ?? [];
     }
 
-    async function createCharacter(name: string, raceId: number): Promise<void> {
+    async function createCharacter(name: string, raceId: number, classId: number): Promise<void> {
         error.value = null;
         if (!token.value) return;
         const res = await fetch('/api/characters', {
@@ -69,7 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token.value}`,
             },
-            body: JSON.stringify({ name, race_id: raceId }),
+            body: JSON.stringify({ name, race_id: raceId, class_id: classId }),
         });
         const data = await res.json();
         if (!res.ok) {

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/GoMudEngine/GoMud/internal/characters"
+	"github.com/GoMudEngine/GoMud/internal/classes"
 	"github.com/GoMudEngine/GoMud/internal/mudlog"
 	"github.com/GoMudEngine/GoMud/internal/races"
 	"github.com/GoMudEngine/GoMud/internal/users"
@@ -16,6 +17,7 @@ import (
 type CharacterSummary struct {
 	Name  string `json:"name"`
 	Race  string `json:"race"`
+	Class string `json:"class"`
 	Level int    `json:"level"`
 }
 
@@ -64,9 +66,14 @@ func charSummaryFromUser(user *users.UserRecord) []CharacterSummary {
 		if r := races.GetRace(user.Character.RaceId); r != nil {
 			raceName = r.Name
 		}
+		className := ""
+		if cl := classes.GetClass(user.Character.ClassId); cl != nil {
+			className = cl.Name
+		}
 		out = append(out, CharacterSummary{
 			Name:  user.Character.Name,
 			Race:  raceName,
+			Class: className,
 			Level: user.Character.Level,
 		})
 	}
@@ -77,9 +84,14 @@ func charSummaryFromUser(user *users.UserRecord) []CharacterSummary {
 		if r := races.GetRace(alt.RaceId); r != nil {
 			raceName = r.Name
 		}
+		className := ""
+		if cl := classes.GetClass(alt.ClassId); cl != nil {
+			className = cl.Name
+		}
 		out = append(out, CharacterSummary{
 			Name:  alt.Name,
 			Race:  raceName,
+			Class: className,
 			Level: alt.Level,
 		})
 	}
@@ -188,8 +200,9 @@ func apiCreateCharacter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Name   string `json:"name"`
-		RaceId int    `json:"race_id"`
+		Name    string `json:"name"`
+		RaceId  int    `json:"race_id"`
+		ClassId int    `json:"class_id"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
@@ -205,6 +218,17 @@ func apiCreateCharacter(w http.ResponseWriter, r *http.Request) {
 	race := races.GetRace(req.RaceId)
 	if race == nil || !race.Selectable {
 		writeError(w, http.StatusBadRequest, "invalid or non-selectable race")
+		return
+	}
+
+	// Verify class is valid and selectable
+	if req.ClassId == 0 {
+		writeError(w, http.StatusBadRequest, "class is required")
+		return
+	}
+	class := classes.GetClass(req.ClassId)
+	if class == nil || !class.Selectable {
+		writeError(w, http.StatusBadRequest, "invalid or non-selectable class")
 		return
 	}
 
@@ -237,6 +261,10 @@ func apiCreateCharacter(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		user.Character.RaceId = req.RaceId
+		if err := user.Character.ApplyClass(req.ClassId); err != nil {
+			writeError(w, http.StatusInternalServerError, "failed to apply class")
+			return
+		}
 		if err := users.SaveUser(*user); err != nil {
 			writeError(w, http.StatusInternalServerError, "failed to save user")
 			return
@@ -247,6 +275,10 @@ func apiCreateCharacter(w http.ResponseWriter, r *http.Request) {
 		newChar.Name = req.Name
 		newChar.RaceId = req.RaceId
 		newChar.SetUserId(user.UserId)
+		if err := newChar.ApplyClass(req.ClassId); err != nil {
+			writeError(w, http.StatusInternalServerError, "failed to apply class")
+			return
+		}
 
 		alts := characters.LoadAlts(user.UserId)
 		alts = append(alts, *newChar)
@@ -276,11 +308,17 @@ func apiGameOptions(w http.ResponseWriter, r *http.Request) {
 		Description string `json:"description"`
 	}
 
+	type ClassOption struct {
+		Id          int    `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}
+
 	allRaces := races.GetRaces()
-	options := []RaceOption{}
+	raceOptions := []RaceOption{}
 	for _, race := range allRaces {
 		if race.Selectable {
-			options = append(options, RaceOption{
+			raceOptions = append(raceOptions, RaceOption{
 				Id:          race.RaceId,
 				Name:        race.Name,
 				Description: race.Description,
@@ -288,5 +326,20 @@ func apiGameOptions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{"races": options})
+	allClasses := classes.GetClasses()
+	classOptions := []ClassOption{}
+	for _, cl := range allClasses {
+		if cl.Selectable {
+			classOptions = append(classOptions, ClassOption{
+				Id:          cl.ClassId,
+				Name:        cl.Name,
+				Description: cl.Description,
+			})
+		}
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"races":   raceOptions,
+		"classes": classOptions,
+	})
 }

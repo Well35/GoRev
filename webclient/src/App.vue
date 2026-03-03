@@ -83,6 +83,13 @@ const cmdTarget = computed(() =>
     selectedEntity.value ? ' ' + selectedEntity.value.entity.name.split(' ')[0].toLowerCase() : ''
 );
 
+const selectedTargetLabel = computed(() => {
+    if (!selectedEntity.value) return 'No Target';
+    const { type, entity } = selectedEntity.value;
+    const suffix = type === 'mob' && entity.level ? ` [Lv.${entity.level}]` : '';
+    return entity.name + suffix;
+});
+
 watch(roomTargets, (targets) => {
     if (selectedTarget.value !== null && selectedTarget.value >= targets.length) {
         selectedTarget.value = null;
@@ -222,7 +229,7 @@ const activeSkillTab = ref<SkillTab>('Skills');
                             : 'text-[var(--text-secondary)]'
                     "
                 >
-                    {{ selectedEntity ? selectedEntity.entity.name : 'No Target' }}
+                    {{ selectedTargetLabel }}
                 </div>
             </div>
 
@@ -261,12 +268,17 @@ const activeSkillTab = ref<SkillTab>('Skills');
                                 :class="tagClass(entry.type)"
                                 >{{ entry.type === 'player' ? 'PC' : 'MOB' }}</span
                             >
-                            <span :class="nameClass(entry.type)" class="truncate">{{
+                            <span :class="nameClass(entry.type)" class="truncate flex-1 min-w-0">{{
                                 entry.entity.name
                             }}</span>
                             <span
+                                v-if="entry.type === 'mob' && entry.entity.level"
+                                class="text-[0.62rem] text-[var(--text-secondary)] font-mono shrink-0"
+                                >Lv.{{ entry.entity.level }}</span
+                            >
+                            <span
                                 v-if="entry.entity.aggro"
-                                class="ml-auto text-[0.6rem] text-[#cc4444] shrink-0"
+                                class="text-[0.6rem] text-[#cc4444] shrink-0"
                                 >!</span
                             >
                         </div>

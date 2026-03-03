@@ -1,0 +1,7 @@
+itemid: 20011
+name: leather armor
+namesimple: armor
+description: Basic tanned leather armor offering modest protection.
+type: body
+subtype: wearable
+damagereduction: 2

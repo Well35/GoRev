@@ -6,15 +6,24 @@ export interface RaceOption {
     description: string;
 }
 
-let cached: RaceOption[] | null = null;
+export interface ClassOption {
+    id: number;
+    name: string;
+    description: string;
+}
+
+let cachedRaces: RaceOption[] | null = null;
+let cachedClasses: ClassOption[] | null = null;
 const loading = ref(false);
 
 export function useGameOptions() {
-    const races = ref<RaceOption[]>(cached ?? []);
+    const races = ref<RaceOption[]>(cachedRaces ?? []);
+    const classes = ref<ClassOption[]>(cachedClasses ?? []);
 
     async function fetchOnce(): Promise<void> {
-        if (cached !== null) {
-            races.value = cached;
+        if (cachedRaces !== null) {
+            races.value = cachedRaces;
+            classes.value = cachedClasses ?? [];
             return;
         }
         if (loading.value) return;
@@ -23,8 +32,10 @@ export function useGameOptions() {
             const res = await fetch('/api/game-options');
             if (!res.ok) return;
             const data = await res.json();
-            cached = data.races ?? [];
-            races.value = cached!;
+            cachedRaces = data.races ?? [];
+            cachedClasses = data.classes ?? [];
+            races.value = cachedRaces!;
+            classes.value = cachedClasses!;
         } finally {
             loading.value = false;
         }
@@ -32,5 +43,5 @@ export function useGameOptions() {
 
     fetchOnce();
 
-    return { races };
+    return { races, classes };
 }

@@ -19,7 +19,6 @@ const showCreate = ref(false);
                 </div>
             </div>
 
-            <!-- Character list -->
             <div class="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0">
                 <div
                     v-if="auth.characters.length === 0"
@@ -34,20 +33,24 @@ const showCreate = ref(false);
                     @click="auth.selectCharacter(char.name)"
                 >
                     <div>
-                        <div class="text-[0.92rem] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] transition-colors">
+                        <div
+                            class="text-[0.92rem] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] transition-colors"
+                        >
                             {{ char.name }}
                         </div>
-                        <div class="text-[0.75rem] text-[var(--text-secondary)] mt-0.5">
-                            {{ char.race }} &middot; Level {{ char.level }}
+                        <div class="text-[0.75rem] text-[var(--text-secondary)] mt-0.5 capitalize">
+                            {{ [char.race, char.class].filter(Boolean).join(' ') }} &middot; Level
+                            {{ char.level }}
                         </div>
                     </div>
-                    <span class="text-[var(--accent-blue)] opacity-0 group-hover:opacity-100 transition-opacity text-sm">
+                    <span
+                        class="text-[var(--accent-blue)] opacity-0 group-hover:opacity-100 transition-opacity text-sm"
+                    >
                         ▶
                     </span>
                 </button>
             </div>
 
-            <!-- Actions -->
             <div class="flex flex-col gap-2 pt-2 border-t border-[var(--border-panel)]">
                 <Button
                     variant="primary"

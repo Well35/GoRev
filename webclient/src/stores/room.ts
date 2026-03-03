@@ -22,6 +22,7 @@ export interface RoomContentsCharacter {
     aggro: boolean;
     quest_flag: boolean;
     hp_pct: number;
+    level?: number;
 }
 
 interface RoomContentsPayload {

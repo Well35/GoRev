@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/GoMudEngine/GoMud/internal/buffs"
+	"github.com/GoMudEngine/GoMud/internal/classes"
 	"github.com/GoMudEngine/GoMud/internal/configs"
 	"github.com/GoMudEngine/GoMud/internal/events"
 	"github.com/GoMudEngine/GoMud/internal/gametime"
@@ -53,6 +54,7 @@ type Character struct {
 	RoomIdOnReset    int                            // The room they are sent to if their RoomId isn't found.
 	Zone             string                         // The zone the character is in. The folder the room can be located in too.
 	RaceId           int                            // Character race
+	ClassId          int                            `yaml:"classid,omitempty"` // Character class (0 = none)
 	Stats            stats.Statistics               // Character stats
 	Level            int                            // The level of the character
 	Experience       int                            // The experience of the character
@@ -1394,6 +1396,18 @@ func (c *Character) RecalculateStats() {
 		c.Stats.Perception.Base = raceInfo.Stats.Perception.Base
 	}
 
+	// Apply class stat bonuses on top of race base
+	if c.ClassId > 0 {
+		if classInfo := classes.GetClass(c.ClassId); classInfo != nil {
+			c.Stats.Strength.Base += classInfo.StatBonuses.Strength.Base
+			c.Stats.Speed.Base += classInfo.StatBonuses.Speed.Base
+			c.Stats.Smarts.Base += classInfo.StatBonuses.Smarts.Base
+			c.Stats.Vitality.Base += classInfo.StatBonuses.Vitality.Base
+			c.Stats.Mysticism.Base += classInfo.StatBonuses.Mysticism.Base
+			c.Stats.Perception.Base += classInfo.StatBonuses.Perception.Base
+		}
+	}
+
 	// Add any mods for equipment
 	c.Stats.Strength.Mods = c.StatMod(string(statmods.Strength))
 	c.Stats.Speed.Mods = c.StatMod(string(statmods.Speed))
@@ -1504,6 +1518,40 @@ func (c *Character) AutoTrain() {
 
 func (c *Character) CanDualWield() bool {
 	return c.GetSkillLevel(skills.DualWield) > 0
+}
+
+// ApplyClass sets the character's class and grants its starting skills, spells, and items.
+// Should be called once at character creation.
+func (c *Character) ApplyClass(classId int) error {
+	cl := classes.GetClass(classId)
+	if cl == nil {
+		return fmt.Errorf("class %d not found", classId)
+	}
+
+	c.ClassId = classId
+
+	if c.Skills == nil {
+		c.Skills = make(map[string]int)
+	}
+	for skill, rank := range cl.StartingSkills {
+		c.Skills[skill] = rank
+	}
+
+	if c.SpellBook == nil {
+		c.SpellBook = make(map[string]int)
+	}
+	for spellId, casts := range cl.StartingSpells {
+		c.SpellBook[spellId] = casts
+	}
+
+	for _, itemId := range cl.StartingItems {
+		if itm := items.New(itemId); itm.ItemId > 0 {
+			c.Items = append(c.Items, itm)
+		}
+	}
+
+	c.Validate()
+	return nil
 }
 
 // Returns whether a correction was in order
