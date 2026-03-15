@@ -12,13 +12,13 @@ const char = useCharStore();
 const SLOTS: { key: WornSlotKey; label: string; row: number; col: 1 | 2 | 3 }[] = [
     { key: 'head',    label: 'Head',  row: 1, col: 2 },
     { key: 'neck',    label: 'Neck',  row: 2, col: 2 },
-    { key: 'weapon',  label: 'Main',  row: 3, col: 1 },
+    { key: 'gloves',  label: 'Hands', row: 3, col: 1 },
     { key: 'body',    label: 'Body',  row: 3, col: 2 },
-    { key: 'offhand', label: 'Off',   row: 3, col: 3 },
+    { key: 'ring',    label: 'Ring',  row: 3, col: 3 },
     { key: 'belt',    label: 'Belt',  row: 4, col: 2 },
-    { key: 'gloves',  label: 'Hands', row: 5, col: 1 },
+    { key: 'weapon',  label: 'Main',  row: 5, col: 1 },
     { key: 'legs',    label: 'Legs',  row: 5, col: 2 },
-    { key: 'ring',    label: 'Ring',  row: 5, col: 3 },
+    { key: 'offhand', label: 'Off',   row: 5, col: 3 },
     { key: 'feet',    label: 'Feet',  row: 6, col: 2 },
 ];
 
