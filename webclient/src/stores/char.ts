@@ -17,6 +17,18 @@ export interface CharSpell {
     cost: number;
 }
 
+export interface InventoryItem {
+    id: string;
+    name: string;
+    type: string;
+    subtype: string;
+    uses: number;
+    details: string[];
+}
+
+export type WornSlotKey = 'weapon' | 'offhand' | 'head' | 'neck' | 'body' | 'belt' | 'gloves' | 'ring' | 'legs' | 'feet';
+export type WornData = Record<WornSlotKey, InventoryItem>;
+
 export const useCharStore = defineStore('char', () => {
     // Char.Info
     const name = ref('');
@@ -42,6 +54,18 @@ export const useCharStore = defineStore('char', () => {
     // Char.Skills / Char.Spells
     const skills = reactive<CharSkill[]>([]);
     const spells = reactive<CharSpell[]>([]);
+
+    // Char.Inventory
+    function emptyItem(): InventoryItem { return { id: '', name: '', type: '', subtype: '', uses: 0, details: [] }; }
+    const backpack = reactive<{ items: InventoryItem[]; Summary: { count: number; max: number } }>({
+        items: [],
+        Summary: { count: 0, max: 0 },
+    });
+    const worn = reactive<WornData>({
+        weapon: emptyItem(), offhand: emptyItem(), head: emptyItem(), neck: emptyItem(),
+        body: emptyItem(), belt: emptyItem(), gloves: emptyItem(), ring: emptyItem(),
+        legs: emptyItem(), feet: emptyItem(),
+    });
 
     // Char.Worth
     const xp = ref(0);
@@ -109,6 +133,22 @@ export const useCharStore = defineStore('char', () => {
         spells.splice(0, spells.length, ...data);
     }
 
+    function applyInventory(data: {
+        Backpack?: { items: InventoryItem[]; Summary: { count: number; max: number } };
+        Worn?: Partial<WornData>;
+    }) {
+        if (data.Backpack) {
+            backpack.items = data.Backpack.items ?? [];
+            backpack.Summary.count = data.Backpack.Summary?.count ?? 0;
+            backpack.Summary.max = data.Backpack.Summary?.max ?? 0;
+        }
+        if (data.Worn) {
+            for (const k of Object.keys(data.Worn) as WornSlotKey[]) {
+                worn[k] = data.Worn[k]!;
+            }
+        }
+    }
+
     function handleGMCP(module: GMCPModule, payload: unknown) {
         if (module === GMCPModule.Char) {
             const data = payload as {
@@ -118,6 +158,7 @@ export const useCharStore = defineStore('char', () => {
                 Worth?: Parameters<typeof applyWorth>[0];
                 Skills?: CharSkill[];
                 Spells?: CharSpell[];
+                Inventory?: Parameters<typeof applyInventory>[0];
             };
             if (data.Info) applyInfo(data.Info);
             if (data.Vitals) applyVitals(data.Vitals);
@@ -125,6 +166,7 @@ export const useCharStore = defineStore('char', () => {
             if (data.Worth) applyWorth(data.Worth);
             if (data.Skills) applySkills(data.Skills);
             if (data.Spells) applySpells(data.Spells);
+            if (data.Inventory) applyInventory(data.Inventory);
         } else if (module === GMCPModule.CharInfo) {
             applyInfo(payload as Parameters<typeof applyInfo>[0]);
         } else if (module === GMCPModule.CharVitals) {
@@ -137,6 +179,12 @@ export const useCharStore = defineStore('char', () => {
             applySkills(payload as CharSkill[]);
         } else if (module === GMCPModule.CharSpells) {
             applySpells(payload as CharSpell[]);
+        } else if (module === GMCPModule.CharInventory) {
+            applyInventory(payload as Parameters<typeof applyInventory>[0]);
+        } else if (module === GMCPModule.CharInventoryBackpack) {
+            applyInventory({ Backpack: payload as { items: InventoryItem[]; Summary: { count: number; max: number } } });
+        } else if (module === GMCPModule.CharInventoryWorn) {
+            applyInventory({ Worn: payload as Partial<WornData> });
         }
     }
 
@@ -163,6 +211,8 @@ export const useCharStore = defineStore('char', () => {
         trainingPoints,
         skills,
         spells,
+        backpack,
+        worn,
         handleGMCP,
     };
 });

@@ -41,6 +41,11 @@ export const useWebSocket = (
 
         ws.onmessage = (event: MessageEvent) => {
             const data: string = event.data;
+            const trimmed = data.trim();
+            if (pendingSilent.has(trimmed)) {
+                pendingSilent.delete(trimmed);
+                return;
+            }
             if (data.startsWith('!!GMCP(')) {
                 if (onGMCP) {
                     const parsed = parseGMCP(data);
@@ -57,8 +62,17 @@ export const useWebSocket = (
         };
     };
 
+    const pendingSilent = new Set<string>();
+
     const send = (data: string) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(data);
+        }
+    };
+
+    const sendSilent = (data: string) => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            pendingSilent.add(data.trim());
             ws.send(data);
         }
     };
@@ -68,5 +82,5 @@ export const useWebSocket = (
         ws = null;
     };
 
-    return { connected, connect, send, disconnect };
+    return { connected, connect, send, sendSilent, disconnect };
 };
