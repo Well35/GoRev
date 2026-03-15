@@ -5,6 +5,7 @@ import TerminalPanel from '@/components/layout/TerminalPanel.vue';
 import InputBar from '@/components/layout/InputBar.vue';
 import LoginOverlay from '@/components/LoginOverlay.vue';
 import CharacterSelectOverlay from '@/components/CharacterSelectOverlay.vue';
+import InventoryDialog from '@/components/InventoryDialog.vue';
 import VitalsPanel from '@/components/panels/VitalsPanel.vue';
 import StatsPanel from '@/components/panels/StatsPanel.vue';
 import MovementPanel from '@/components/panels/MovementPanel.vue';
@@ -63,6 +64,12 @@ const handleSend = (cmd: string) => {
         : cmd;
     webSocket.send(out + '\n');
 };
+
+const handleSilentSend = (cmd: string) => {
+    webSocket.sendSilent(cmd + '\n');
+};
+
+const showInventory = ref(false);
 
 const gridAreas = '"topbar topbar topbar" "left center right"';
 
@@ -356,8 +363,8 @@ const activeSkillTab = ref<SkillTab>('Skills');
                 class="shrink-0 border-t border-[var(--border-panel)] pt-[6px] px-2 pb-2 bg-[var(--bg-panel)]"
             >
                 <div class="grid grid-cols-2 gap-1">
-                    <Button size="sm">Inventory</Button>
-                    <Button size="sm">Equipment</Button>
+                    <Button size="sm" @click="showInventory = true">Inventory</Button>
+                    <Button size="sm" @click="showInventory = true">Equipment</Button>
                     <Button size="sm">Talents</Button>
                     <Button size="sm">Who Online</Button>
                     <Button size="sm">Examine</Button>
@@ -370,5 +377,10 @@ const activeSkillTab = ref<SkillTab>('Skills');
 
         <LoginOverlay v-if="auth.state === 'login'" />
         <CharacterSelectOverlay v-else-if="auth.state === 'character-select'" />
+        <InventoryDialog
+            v-if="showInventory"
+            :on-command="handleSilentSend"
+            @close="showInventory = false"
+        />
     </div>
 </template>
