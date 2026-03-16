@@ -36,7 +36,7 @@ onMounted(() => {
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: 14,
         lineHeight: 1.2,
-        cursorBlink: true,
+        disableStdin: true,
         scrollback: 5000,
         allowProposedApi: true,
     });
@@ -50,6 +50,12 @@ onMounted(() => {
         fitAddon?.fit();
     });
     resizeObserver.observe(containerRef.value);
+
+    // xterm focuses its hidden textarea on click even with disableStdin.
+    // Blur it on mouseup so arrow keys keep working for movement.
+    containerRef.value.addEventListener('mouseup', () => {
+        (document.activeElement as HTMLElement)?.blur();
+    });
 });
 
 onBeforeUnmount(() => {
