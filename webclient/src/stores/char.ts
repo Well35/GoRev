@@ -15,6 +15,7 @@ export interface CharSpell {
     school: string;
     type: string;
     cost: number;
+    wait?: number;
 }
 
 export interface InventoryItem {
@@ -24,6 +25,15 @@ export interface InventoryItem {
     subtype: string;
     uses: number;
     details: string[];
+    description?: string;
+    damage?: string;
+    armor?: number;
+    statmods?: Record<string, number>;
+    element?: string;
+    hands?: number;
+    wait?: number;
+    enchant?: number;
+    value?: number;
 }
 
 export type WornSlotKey = 'weapon' | 'offhand' | 'head' | 'neck' | 'body' | 'belt' | 'gloves' | 'ring' | 'legs' | 'feet';

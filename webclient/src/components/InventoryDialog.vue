@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import Dialog from '@/components/ui/dialog.vue';
+import ItemTooltip from '@/components/ui/ItemTooltip.vue';
 import { useCharStore } from '@/stores/char';
 import type { InventoryItem, WornSlotKey } from '@/stores/char';
 
@@ -117,19 +118,21 @@ function detailBadgeClass(detail: string) {
                             <span class="text-[0.62rem] tracking-[0.1em] font-mono font-bold text-[var(--text-muted)] uppercase">
                                 {{ slot.label }}
                             </span>
+                            <ItemTooltip v-if="char.worn[slot.key].id" :item="char.worn[slot.key]" :equipped="true">
+                                <div
+                                    class="w-full min-h-[44px] flex items-center justify-center px-1 py-1 text-center transition-colors rounded bg-[#061a1a] border border-[var(--border-panel)] text-[var(--text-primary)] hover:border-[var(--accent-blue)] hover:bg-[#0a2424] cursor-grab active:cursor-grabbing"
+                                    draggable="true"
+                                    @dragstart="onDragStartSlot(slot.key)"
+                                    @dragend="onDragEnd"
+                                >
+                                    <span class="text-[0.75rem] leading-tight">{{ char.worn[slot.key].name }}</span>
+                                </div>
+                            </ItemTooltip>
                             <div
-                                class="w-full min-h-[44px] flex items-center justify-center px-1 py-1 text-center transition-colors rounded"
-                                :class="char.worn[slot.key].id
-                                    ? 'bg-[#061a1a] border border-[var(--border-panel)] text-[var(--text-primary)] hover:border-[var(--accent-blue)] hover:bg-[#0a2424] cursor-grab active:cursor-grabbing'
-                                    : 'bg-[#030d0d] border border-dashed border-[var(--text-muted)] text-[var(--text-muted)] cursor-default'"
-                                :draggable="!!char.worn[slot.key].id"
-                                @dragstart="char.worn[slot.key].id && onDragStartSlot(slot.key)"
-                                @dragend="onDragEnd"
+                                v-else
+                                class="w-full min-h-[44px] flex items-center justify-center px-1 py-1 text-center transition-colors rounded bg-[#030d0d] border border-dashed border-[var(--text-muted)] text-[var(--text-muted)] cursor-default"
                             >
-                                <span v-if="char.worn[slot.key].id" class="text-[0.75rem] leading-tight">
-                                    {{ char.worn[slot.key].name }}
-                                </span>
-                                <span v-else class="text-[0.65rem] opacity-40">—</span>
+                                <span class="text-[0.65rem] opacity-40">—</span>
                             </div>
                         </div>
                     </div>
@@ -166,30 +169,35 @@ function detailBadgeClass(detail: string) {
                     >
                         Backpack is empty
                     </div>
-                    <div
+                    <ItemTooltip
                         v-for="item in char.backpack.items"
                         :key="item.id"
-                        draggable="true"
-                        @dragstart="onDragStart(item)"
-                        @dragend="onDragEnd"
-                        @click="props.onCommand(`wear ${item.id}`)"
-                        class="flex items-center gap-2 px-2 py-[6px] border-b border-[var(--border-panel)] last:border-b-0 cursor-grab active:cursor-grabbing hover:bg-[rgba(0,192,176,0.06)] transition-colors"
-                        :class="{ 'opacity-50': draggingItem?.id === item.id }"
+                        :item="item"
+                        :equipped="false"
                     >
-                        <span class="text-[var(--text-muted)] text-[0.8rem] shrink-0 select-none">⠿</span>
-                        <span class="flex-1 text-[0.9rem] text-[var(--text-primary)] truncate">{{ item.name }}</span>
-                        <span
-                            v-if="item.type"
-                            class="text-[0.7rem] font-bold font-mono px-[5px] py-px border shrink-0"
-                            :class="typeBadgeClass(item.type)"
-                        >{{ item.type.toUpperCase() }}</span>
-                        <span
-                            v-for="d in item.details"
-                            :key="d"
-                            class="text-[0.68rem] font-bold font-mono px-[5px] py-px border shrink-0"
-                            :class="detailBadgeClass(d)"
-                        >{{ d.toUpperCase() }}</span>
-                    </div>
+                        <div
+                            draggable="true"
+                            @dragstart="onDragStart(item)"
+                            @dragend="onDragEnd"
+                            @click="props.onCommand(`wear ${item.id}`)"
+                            class="flex items-center gap-2 px-2 py-[6px] border-b border-[var(--border-panel)] last:border-b-0 cursor-grab active:cursor-grabbing hover:bg-[rgba(0,192,176,0.06)] transition-colors"
+                            :class="{ 'opacity-50': draggingItem?.id === item.id }"
+                        >
+                            <span class="text-[var(--text-muted)] text-[0.8rem] shrink-0 select-none">⠿</span>
+                            <span class="flex-1 text-[0.9rem] text-[var(--text-primary)] truncate">{{ item.name }}</span>
+                            <span
+                                v-if="item.type"
+                                class="text-[0.7rem] font-bold font-mono px-[5px] py-px border shrink-0"
+                                :class="typeBadgeClass(item.type)"
+                            >{{ item.type.toUpperCase() }}</span>
+                            <span
+                                v-for="d in item.details"
+                                :key="d"
+                                class="text-[0.68rem] font-bold font-mono px-[5px] py-px border shrink-0"
+                                :class="detailBadgeClass(d)"
+                            >{{ d.toUpperCase() }}</span>
+                        </div>
+                    </ItemTooltip>
                 </div>
 
                 <!-- Hint footer -->

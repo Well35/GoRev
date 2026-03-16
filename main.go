@@ -738,10 +738,12 @@ func HandleWebSocketConnection(conn *websocket.Conn, r *http.Request) {
 		if _, username, ok := web.ValidateToken(token); ok {
 			if loadedUser, err := users.LoadUser(username); err == nil {
 				charName := r.URL.Query().Get("char")
-				if charName != "" && loadedUser.Character.Name != charName {
-					loadedUser.SwapToAlt(charName)
-				}
 				if loggedInUser, _, err := users.LoginUser(loadedUser, connDetails.ConnectionId()); err == nil {
+					// Apply character swap after LoginUser — zombie reconnects replace the loaded user
+					// with the in-memory user, so the swap must happen on the resolved user object.
+					if charName != "" && loggedInUser.Character.Name != charName {
+						loggedInUser.SwapToAlt(charName)
+					}
 					userObject = loggedInUser
 					tokenLogin = true
 				}

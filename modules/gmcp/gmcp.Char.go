@@ -668,6 +668,7 @@ func (g *GMCPCharModule) GetCharNode(user *users.UserRecord, gmcpModule string) 
 				School:      string(spellInfo.School),
 				Type:        string(spellInfo.Type),
 				Cost:        spellInfo.Cost,
+				WaitRounds:  spellInfo.WaitRounds,
 			})
 		}
 
@@ -703,6 +704,7 @@ type GMCPCharModule_Payload_Spell struct {
 	School      string `json:"school"`
 	Type        string `json:"type"`
 	Cost        int    `json:"cost"`
+	WaitRounds  int    `json:"wait,omitempty"`
 }
 
 // wantsGMCPPayload(`Char.Info`, `Char`)
@@ -793,12 +795,21 @@ type GMCPCharModule_Payload_Inventory_Worn struct {
 }
 
 type GMCPCharModule_Payload_Inventory_Item struct {
-	Id      string   `json:"id"`
-	Name    string   `json:"name"`
-	Type    string   `json:"type"`
-	SubType string   `json:"subtype"`
-	Uses    int      `json:"uses"`
-	Details []string `json:"details"`
+	Id          string         `json:"id"`
+	Name        string         `json:"name"`
+	Type        string         `json:"type"`
+	SubType     string         `json:"subtype"`
+	Uses        int            `json:"uses"`
+	Details     []string       `json:"details"`
+	Description string         `json:"description,omitempty"`
+	Damage      string         `json:"damage,omitempty"`
+	Armor       int            `json:"armor,omitempty"`
+	StatMods    map[string]int `json:"statmods,omitempty"`
+	Element     string         `json:"element,omitempty"`
+	Hands       int            `json:"hands,omitempty"`
+	WaitRounds  int            `json:"wait,omitempty"`
+	Enchant     int            `json:"enchant,omitempty"`
+	Value       int            `json:"value,omitempty"`
 }
 
 func newInventory_Item(itm items.Item) GMCPCharModule_Payload_Inventory_Item {
@@ -819,6 +830,40 @@ func newInventory_Item(itm items.Item) GMCPCharModule_Payload_Inventory_Item {
 
 	if itmSpec.QuestToken != `` {
 		d.Details = append(d.Details, `quest`)
+	}
+
+	d.Description = itmSpec.Description
+	if itmSpec.Damage.DiceRoll != `` {
+		d.Damage = itmSpec.Damage.DiceRoll
+	}
+	if itmSpec.DamageReduction != 0 {
+		d.Armor = itmSpec.DamageReduction
+	}
+	if itmSpec.Element.String() != `` {
+		d.Element = itmSpec.Element.String()
+	}
+	if itmSpec.Hands != 0 {
+		d.Hands = int(itmSpec.Hands)
+	}
+	if itmSpec.WaitRounds != 0 {
+		d.WaitRounds = itmSpec.WaitRounds
+	}
+	if itm.Enchantments != 0 {
+		d.Enchant = int(itm.Enchantments)
+	}
+	if itmSpec.Value != 0 {
+		d.Value = itmSpec.Value
+	}
+
+	statNames := []string{`strength`, `speed`, `smarts`, `vitality`, `mysticism`, `perception`}
+	statMap := map[string]int{}
+	for _, s := range statNames {
+		if v := itmSpec.StatMods.Get(s); v != 0 {
+			statMap[s] = v
+		}
+	}
+	if len(statMap) > 0 {
+		d.StatMods = statMap
 	}
 
 	return d

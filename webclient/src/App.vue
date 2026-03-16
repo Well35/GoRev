@@ -11,10 +11,7 @@ import StatsPanel from '@/components/panels/StatsPanel.vue';
 import MovementPanel from '@/components/panels/MovementPanel.vue';
 import MapPanel from '@/components/panels/MapPanel.vue';
 import Button from '@/components/ui/button.vue';
-import Tabs from '@/components/ui/tabs.vue';
-import TabsList from '@/components/ui/tabs-list.vue';
-import TabsTrigger from '@/components/ui/tabs-trigger.vue';
-import TabsContent from '@/components/ui/tabs-content.vue';
+import SpellTooltip from '@/components/ui/SpellTooltip.vue';
 import { useWebSocket } from '@/composables/useWebSocket';
 import { useAuthStore } from '@/stores/auth';
 import { useCharStore } from '@/stores/char';
@@ -152,9 +149,12 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
     handleSend(dir);
 });
 
-const skillTabs = ['Skills', 'Spells'] as const;
-type SkillTab = (typeof skillTabs)[number];
-const activeSkillTab = ref<SkillTab>('Skills');
+const abilitiesLabel = computed(() => {
+    const cls = char.charClass.toLowerCase();
+    if (cls === 'mage') return 'Spells';
+    if (cls === 'warrior') return 'Skills';
+    return 'Abilities';
+});
 </script>
 
 <template>
@@ -299,64 +299,44 @@ const activeSkillTab = ref<SkillTab>('Skills');
                 </div>
             </div>
 
-            <!-- Skills / Spells Section -->
-            <Tabs v-model="activeSkillTab" class="flex-1 flex flex-col overflow-hidden min-h-0">
-                <TabsList>
-                    <TabsTrigger
-                        v-for="tab in skillTabs"
-                        :key="tab"
-                        :value="tab"
-                        :model-value="activeSkillTab"
-                        @update:model-value="activeSkillTab = $event"
-                    >
-                        {{ tab }}
-                    </TabsTrigger>
-                </TabsList>
+            <!-- Abilities Section -->
+            <div class="flex-1 flex flex-col overflow-hidden min-h-0">
+                <div class="bg-[var(--bg-panel-header)] border-b border-[var(--border-panel)] px-2 py-1 shrink-0">
+                    <span class="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
+                        {{ abilitiesLabel }}
+                    </span>
+                </div>
                 <div class="flex-1 overflow-y-auto py-[5px] px-2">
-                    <template v-if="activeSkillTab === 'Skills'">
-                        <div
-                            v-if="char.skills.length === 0"
-                            class="text-[var(--text-secondary)] text-[0.78rem] text-center py-[14px]"
-                        >
-                            No skills learned
-                        </div>
-                        <div
-                            v-for="skill in char.skills"
-                            :key="skill.id"
-                            class="flex items-center justify-between py-[3px] text-[0.78rem]"
-                        >
-                            <span class="text-[var(--text-primary)]">{{ skill.name }}</span>
-                            <span class="text-[var(--text-secondary)] font-mono shrink-0"
-                                >{{ skill.level }}/4</span
-                            >
-                        </div>
-                    </template>
-                    <template v-else>
-                        <div
-                            v-if="char.spells.length === 0"
-                            class="text-[var(--text-secondary)] text-[0.78rem] text-center py-[14px]"
-                        >
-                            No spells learned
-                        </div>
+                    <div
+                        v-if="char.skills.length === 0 && char.spells.length === 0"
+                        class="text-[var(--text-secondary)] text-[0.78rem] text-center py-[14px]"
+                    >
+                        Nothing learned yet
+                    </div>
+                    <SpellTooltip
+                        v-for="spell in char.spells"
+                        :key="spell.id"
+                        :spell="spell"
+                    >
                         <Button
-                            v-for="spell in char.spells"
-                            :key="spell.id"
                             :disabled="!isConnected"
                             variant="ghost"
                             class="w-full flex items-center justify-start gap-2 px-2 py-[3px] h-auto text-[0.78rem] border-l-2 border-l-transparent rounded-none hover:bg-[rgba(0,192,176,0.07)] hover:border-l-[var(--accent-blue)]"
-                            :title="spell.description"
                             @click="handleSend('cast ' + spell.id + cmdTarget)"
                         >
-                            <span class="text-[var(--accent-blue)] font-mono shrink-0"
-                                >{{ spell.cost }}mp</span
-                            >
-                            <span class="text-[var(--text-primary)] truncate">{{
-                                spell.name
-                            }}</span>
+                            <span class="text-[var(--accent-blue)] font-mono shrink-0">{{ spell.cost }}mp</span>
+                            <span class="text-[var(--text-primary)] truncate">{{ spell.name }}</span>
                         </Button>
-                    </template>
+                    </SpellTooltip>
+                    <div
+                        v-for="skill in char.skills"
+                        :key="skill.id"
+                        class="py-[3px] px-2 text-[0.78rem] text-[var(--text-primary)]"
+                    >
+                        {{ skill.name }}
+                    </div>
                 </div>
-            </Tabs>
+            </div>
 
             <!-- Quick-access window buttons -->
             <div
