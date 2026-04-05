@@ -64,22 +64,6 @@ func HandleJoin(e events.Event) events.ListenerReturn {
 		sendResetMessage = true
 	}
 
-	// TODO HERE
-	loginCmds := configs.GetConfig().Server.OnLoginCommands
-	if len(loginCmds) > 0 {
-
-		for _, cmd := range loginCmds {
-
-			events.AddToQueue(events.Input{
-				UserId:    evt.UserId,
-				InputText: cmd,
-				ReadyTurn: 0, // No delay between execution of commands
-			})
-
-		}
-
-	}
-
 	if room != nil {
 
 		if sendResetMessage {
@@ -89,6 +73,26 @@ func HandleJoin(e events.Event) events.ListenerReturn {
 		if doLook, err := scripting.TryRoomScriptEvent(`onEnter`, user.UserId, user.Character.RoomId); err != nil || doLook {
 			user.CommandFlagged(`look`, events.CmdSecretly) // Do a secret look.
 		}
+	}
+
+	// Characters in the void get auto-started instead of login commands
+	if user.Character.RoomId == -1 {
+		events.AddToQueue(events.Input{
+			UserId:    evt.UserId,
+			InputText: `start`,
+			ReadyTurn: 0,
+		})
+		return events.Continue
+	}
+
+	// Only run login commands for characters already in the world
+	loginCmds := configs.GetConfig().Server.OnLoginCommands
+	for _, cmd := range loginCmds {
+		events.AddToQueue(events.Input{
+			UserId:    evt.UserId,
+			InputText: cmd,
+			ReadyTurn: 0,
+		})
 	}
 
 	return events.Continue

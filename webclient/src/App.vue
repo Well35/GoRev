@@ -24,7 +24,7 @@ const metaMudName =
 const terminalRef = ref<{ write: (d: string) => void; focus: () => void } | null>(null);
 
 const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-const wsUrl = `${wsProtocol}//${location.host}/ws`;
+const wsUrl = import.meta.env.VITE_WS_URL ?? `${wsProtocol}//${location.host}/ws`;
 
 const auth = useAuthStore();
 const char = useCharStore();
